@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ShapeRoundView">
+        <attr name="shape_round_radius" format="dimension" />
+        <attr name="shape_round_border_color" format="color" />
+        <attr name="shape_round_border_width" format="dimension" />
+    </declare-styleable>
+</resources>

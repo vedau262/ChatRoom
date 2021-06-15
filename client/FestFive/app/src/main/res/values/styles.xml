@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@android:color/white</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="fontFamily">@font/proxima_nova_regular</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="colorControlNormal">@color/lineGray</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
+        <item name="otpViewStyle">@style/OtpWidget.OtpView</item>
+    </style>
+
+    <style name="WhiteActivityTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/color_text_default</item>
+    </style>
+
+    <style name="LightStatusTheme" parent="WhiteActivityTheme">
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+    </style>
+
+    <!--Title-->
+    <style name="BaseTitleTheme" parent="TextAppearance.AppCompat.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/sp_22</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="LoginTitle">
+        <item name="android:textSize">@dimen/sp_34</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">#4A1178</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/font_bold</item>
+    </style>
+    <!--Login Style-->
+
+    <style name="LoginTextInputHint">
+        <item name="android:textColor">#9A9A9A</item>
+        <item name="android:textSize">@dimen/dp_17</item>
+    </style>
+
+    <style name="LoginButton" parent="BaseButtonTheme">
+        <item name="android:background">@drawable/bg_rectangle_radius_8dp</item>
+        <item name="android:layout_height">@dimen/dp_56</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+        <item name="android:textSize">@dimen/dp_17</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:radius">@dimen/dp_8</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="NormalText">
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textColor">#1D1F21</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <style name="BoldText">
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textColor">#1D1F21</item>
+        <item name="android:fontFamily">@font/proxima_bold_700</item>
+    </style>
+
+    <style name="PrimaryNormalText">
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textColor">#4A1178</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <style name="PrimaryBoldText">
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textColor">#4A1178</item>
+        <item name="fontFamily">@font/font_bold</item>
+        <item name="android:fontFamily">@font/font_bold</item>
+    </style>
+
+    <!--H1-->
+    <style name="TextH1Theme" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textSize">@dimen/sp_18</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#4A1178</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <!--H2-->
+    <style name="TextH2Theme" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">#1D1F21</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <!--P-->
+    <style name="TextPTheme" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">@dimen/sp_15</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">#1D1F21</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+    <!--P-->
+    <style name="TextLabelTheme" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">@dimen/sp_13</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#1D1F21</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <!--Small-->
+    <style name="TextSmallTheme" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">#BDBDBD</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <!--Tab-->
+    <style name="TextTabTheme" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/sp_14</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/proxima_nova_regular</item>
+    </style>
+
+    <!--Button-->
+    <style name="BaseButtonTheme" parent="TextAppearance.AppCompat.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dp_56</item>
+        <item name="android:textSize">@dimen/sp_17</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MainActiveButton" parent="BaseButtonTheme">
+        <item name="android:background">@drawable/bg_rectangle_radius_8dp</item>
+        <item name="android:radius">24dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MainActiveButtonPrimary" parent="BaseButtonTheme">
+        <item name="android:background">@drawable/bg_rectangle_radius_8dp</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:radius">24dp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!--Dialog-->
+    <style name="WideDialog" parent="Base.Theme.AppCompat.Dialog">
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+
+    <style name="FullDialog" parent="Base.Theme.AppCompat.Dialog">
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
+    <style name="BottomSheetDialog" parent="Base.Theme.AppCompat.Dialog">
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
+    <!--OtpView-->
+    <style name="OtpWidget.OtpView" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@null</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">@dimen/dp_17</item>
+    </style>
+
+    <!--Otp code-->
+    <style name="OtpFilterStyle">
+        <item name="android:maxLength">6</item>
+        <item name="android:digits">1234567890</item>
+        <item name="android:inputType">textFilter</item>
+    </style>
+
+    <!--Phone number -->
+    <style name="PhoneFilterStyle">
+        <item name="android:maxLength">16</item>
+        <item name="android:digits">1234567890+</item>
+        <item name="android:inputType">textFilter</item>
+    </style>
+
+    <!--Email filter style-->
+    <style name="EmailFilterStyle">
+        <item name="android:maxLength">255</item>
+        <item name="android:digits">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890@.+
+        </item>
+        <item name="android:inputType">textFilter</item>
+    </style>
+
+    <!--Password filter style-->
+    <style name="PasswordFilterStyle">
+        <item name="android:maxLength">30</item>
+        <item name="android:digits">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%
+        </item>
+        <item name="android:inputType">textFilter</item>
+    </style>
+
+    <style name="CustomDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:alwaysDrawnWithCache">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
+    <!--<style name="RoundedBgTextView" parent="@android:style/Widget.TextView">
+        <item name="roundedTextHorizontalPadding">@dimen/dp_16</item>
+        <item name="roundedTextVerticalPadding">8dp</item>
+        <item name="roundedTextDrawable">@drawable/rounded_text_bg</item>
+        <item name="roundedTextDrawableLeft">@drawable/rounded_text_bg</item>
+        <item name="roundedTextDrawableMid">@drawable/rounded_text_bg</item>
+        <item name="roundedTextDrawableRight">@drawable/rounded_text_bg</item>
+    </style>-->
+
+    <style name="Widget.RoundedBackground" parent="android:Widget" />
+
+    <!-- <style name="Widget.RoundedBackground.SampleTextView">
+         <item name="android:lineSpacingExtra">10dp</item>
+         <item name="android:lineSpacingMultiplier">1.7</item>
+         <item name="android:padding">14dp</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:includeFontPadding">true</item>
+         <item name="roundedTextHorizontalPadding">10dp</item>
+         <item name="roundedTextVerticalPadding">8dp</item>
+     </style>-->
+</resources>
