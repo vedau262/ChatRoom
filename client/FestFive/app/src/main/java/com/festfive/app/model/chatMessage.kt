@@ -3,6 +3,7 @@ package com.festfive.app.model
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.extension.getDefault
+import org.json.JSONObject
 
 data class MessageSocket(
     val list : MutableList<ChatMessage>
@@ -31,5 +32,13 @@ data class OnlineUser(
     val room : String? = null
 ){
     fun  getUserName() : String = if(isMe) "me: " + name else name.getDefault()
+}
+
+data class StreamSocket(
+    val type : String,
+    val from : String,
+    val to : String,
+    val payload : JSONObject
+) {
 }
 

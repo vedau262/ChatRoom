@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FestFive</string>
+    <string name="app_name">Chat room</string>
 
     <!--TAG-->
     <string name="tag_tool_bar_view" translatable="false">TOOLBAR</string>

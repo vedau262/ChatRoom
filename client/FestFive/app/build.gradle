@@ -157,4 +157,7 @@ dependencies {
     /*implementation platform('com.google.firebase:firebase-bom:26.2.0')
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'*/
+
+    //WebRTC
+    implementation 'org.webrtc:google-webrtc:1.0.28513'
 }

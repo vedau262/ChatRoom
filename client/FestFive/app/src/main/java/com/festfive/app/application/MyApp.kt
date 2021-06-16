@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import com.festfive.app.BuildConfig
-import com.festfive.app.model.ChatMessage
-import com.festfive.app.model.MessageSocket
-import com.festfive.app.model.OnlineUser
-import com.festfive.app.model.UserSocket
+import com.festfive.app.model.*
 import com.festfive.app.push.SocketManager
 import com.festfive.app.utils.Constants
 import com.festfive.app.utils.SharePreferencesUtils
@@ -171,6 +168,13 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
                 val id = it[0] as String
                 onlineUser.id = id
                 Timber.e("onlineUser id:" + id)
+            })
+
+            mSocket.onChannel("message", Emitter.Listener {
+                val data = it[0] as JSONObject
+                Timber.e("onChannel message:" + data)
+                val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java)
+                RxEvent.send(SystemEvent.SocketData(data = mes))
             })
         }
     }

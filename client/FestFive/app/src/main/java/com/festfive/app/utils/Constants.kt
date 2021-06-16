@@ -7,6 +7,7 @@ package com.festfive.app.utils
 object Constants {
     const val KEY_BEARER = "Bearer"
     const val PATTERN_PARSE_TIME_SERVER = "yyyy-MM-dd HH:mm:ss"
+    const val KEY_PUT_OBJECT = "KEY_PUT_OBJECT"
 
     const val KEY_SEND_MESSAGE = "send_message"
     const val KEY_RECEIVE_MESSAGE = "receiver_message"

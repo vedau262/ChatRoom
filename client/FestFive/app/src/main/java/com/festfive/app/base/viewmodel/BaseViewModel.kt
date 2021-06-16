@@ -2,10 +2,7 @@ package com.festfive.app.base.viewmodel
 
 import androidx.lifecycle.*
 import com.festfive.app.extension.observeOnUiThread
-import com.festfive.app.model.ChatMessage
-import com.festfive.app.model.MessageSocket
-import com.festfive.app.model.OnlineUser
-import com.festfive.app.model.UserSocket
+import com.festfive.app.model.*
 import com.festfive.app.model.error.ErrorMessage
 import com.festfive.app.utils.event.RxEvent
 import com.festfive.app.utils.event.SystemEvent
@@ -144,6 +141,7 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
                 when (it.data) {
                     is MessageSocket -> onChatMessageChanged(it.data.list)
                     is UserSocket -> onUserJoinChanged(it.data.list)
+                    is StreamSocket -> onStreamChanged(it.data)
                 }
             })
     }
@@ -152,5 +150,8 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
     }
 
     open fun onUserJoinChanged(data: MutableList<OnlineUser>) {
+    }
+
+    open fun onStreamChanged(data: StreamSocket) {
     }
 }

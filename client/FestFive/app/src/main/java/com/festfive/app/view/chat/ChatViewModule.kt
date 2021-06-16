@@ -17,5 +17,9 @@ abstract class ChatViewModule {
     @ContributesAndroidInjector
     internal abstract fun contributeChatFragment(): ChatFragment
 
+    @FragmentScoped
+    @ContributesAndroidInjector
+    internal abstract fun contributeVideoCallFragment(): VideoCallFragment
+
 
 }
