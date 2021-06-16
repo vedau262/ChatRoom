@@ -43,14 +43,22 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
         super.initView()
         friendId = arguments?.getString(Constants.KEY_PUT_OBJECT).toString()
 
-//        webRtcClient?.startLocalCamera(android.os.Build.MODEL, requireActivity())
-
         dataBinding.apply {
             txtRoomId.setOnClickListener{
                 webRtcClient?.friendId = friendId
-//                webRtcClient?.startLocalCamera(android.os.Build.MODEL, requireActivity())
-
                 webRtcClient?.callByClientId(friendId)
+
+                /*mViewModel.requestPermission(RxPermissions(requireActivity()),
+                    arrayOf(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO
+                    )
+                ) { granted ->
+                    if (granted){
+                        webRtcClient?.onDestroy()
+                        startWebRTC()
+                    }
+                }*/
             }
 
             localRenderer.apply {
@@ -62,12 +70,24 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                 setEnableHardwareScaler(false)
                 init(eglBase.eglBaseContext, null)
             }
+
+            mViewModel.requestPermission(RxPermissions(requireActivity()),
+                arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            ) { granted ->
+                if (granted){
+                    webRtcClient?.onDestroy()
+                    startWebRTC()
+                }
+            }
         }
     }
 
     override fun initViewModel() {
         super.initViewModel()
-        mViewModel.requestPermission(RxPermissions(this),
+        /*mViewModel.requestPermission(RxPermissions(this),
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO
@@ -77,12 +97,19 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                 webRtcClient?.onDestroy()
                 startWebRTC()
             }
-        }
+        }*/
 
         mViewModel.apply {
             streamSocket.observe(viewLifecycleOwner, Observer {
                 it?.let {
                     webRtcClient?.processStreamSocket(it)
+                }
+            })
+
+            myId.observe(viewLifecycleOwner, Observer {
+                if(!it.isNullOrEmpty()){
+                    webRtcClient?.onCallReady(it)
+//                    webRtcClient?.callByClientId(friendId)
                 }
             })
         }
@@ -134,6 +161,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                     Log.d("startWebRTC onRemoveRemoteStream ", endPoint.toString())
                 }
             })
-//        webRtcClient?.startLocalCamera(android.os.Build.MODEL, this@MainActivity)
+
+//        MyApp.mSocket.emitData("get_id", "get_id")
     }
 }

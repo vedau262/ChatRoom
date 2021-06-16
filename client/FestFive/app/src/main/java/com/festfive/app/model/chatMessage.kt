@@ -3,6 +3,7 @@ package com.festfive.app.model
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.extension.getDefault
+import com.google.gson.JsonObject
 import org.json.JSONObject
 
 data class MessageSocket(
@@ -38,7 +39,13 @@ data class StreamSocket(
     val type : String,
     val from : String,
     val to : String,
-    val payload : JSONObject
+    var payload : JSONObject
+) {
+}
+
+data class payload(
+    val type : String? = null,
+    val sdp : String? = null
 ) {
 }
 

@@ -33,8 +33,6 @@ class WebRtcClient(
     private var videoSource: VideoSource? = null
 
     private val mVideoCapturer by lazy { getVideoCapturer() }
-
-    private val socket = MyApp.mSocket
     var friendId = ""
 
 
@@ -54,22 +52,22 @@ class WebRtcClient(
 
 //        webrtcListener.onCallReady(MyApp.onlineUser.id.getDefault())
 
-        socket.emitData("get_id", "")
-
         //Used when initializing the ICE server to create a PC
         iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer())
-        /*iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
 
-        iceServers.add(PeerConnection.IceServer.builder("turn:13.250.13.83:3478?transport=udp").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())*/
 
         //Initialize the local MediaConstraints used when creating the PC, which is the configuration information of the streaming media
         pcConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         pcConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
         pcConstraints.optional.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
 
+        MyApp.mSocket.emitData("get_id", "get_id")
     }
-
+    fun onCallReady(id: String) {
+        webrtcListener.onCallReady(id)
+    }
     private fun getVideoCapturer() =
         Camera2Enumerator(app).run {
             deviceNames.find {
@@ -105,6 +103,7 @@ class WebRtcClient(
         }*/
 
 //        callByClientId(friendId)
+//        MyApp.mSocket.emitData("get_id", "get_id")
     }
 
 
@@ -155,7 +154,6 @@ class WebRtcClient(
 
     fun callByClientId(clientId: String) {
         sendMessage(clientId, "init", JSONObject())
-        webrtcListener.onCallReady(MyApp.onlineUser.id.getDefault())
     }
 
     /**
@@ -168,6 +166,7 @@ class WebRtcClient(
      */
     @Throws(JSONException::class)
     private fun sendMessage(to: String, type: String, payload: JSONObject) {
+        Timber.e("sendMessage to " + to)
         val message = JSONObject()
         message.put("to", to)
         message.put("type", type)

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.festfive.app.R
+import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseActivity
 import com.festfive.app.base.viewmodel.EmptyViewModel
 import com.festfive.app.databinding.ActivityChatBinding
@@ -26,5 +27,9 @@ class SocketTestActivity : BaseActivity<ActivityChatBinding, EmptyViewModel>(){
                 REQUEST_CODE_PERMISSION
             )
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

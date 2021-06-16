@@ -142,6 +142,7 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
                     is MessageSocket -> onChatMessageChanged(it.data.list)
                     is UserSocket -> onUserJoinChanged(it.data.list)
                     is StreamSocket -> onStreamChanged(it.data)
+                    is OnlineUser -> onMyIdChanged(it.data)
                 }
             })
     }
@@ -153,5 +154,8 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
     }
 
     open fun onStreamChanged(data: StreamSocket) {
+    }
+
+    open fun onMyIdChanged(data: OnlineUser) {
     }
 }

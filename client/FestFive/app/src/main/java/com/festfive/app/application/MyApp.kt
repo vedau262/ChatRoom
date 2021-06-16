@@ -167,17 +167,24 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
             mSocket.onChannel("id", Emitter.Listener {
                 val id = it[0] as String
                 onlineUser.id = id
-                Timber.e("onlineUser id:" + id)
+                Timber.e("onChannel id:" + id)
+                val mes: OnlineUser = OnlineUser(id = id)
+                RxEvent.send(SystemEvent.SocketData(data = mes))
             })
 
             mSocket.onChannel("message", Emitter.Listener {
                 val data = it[0] as JSONObject
                 Timber.e("onChannel message:" + data)
-                val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java)
+                val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java).apply {
+                    payload = data.getJSONObject("payload")
+                }
+
+                Timber.e("onChannel message:" + mes)
                 RxEvent.send(SystemEvent.SocketData(data = mes))
             })
         }
     }
+
 
 
     companion object {
