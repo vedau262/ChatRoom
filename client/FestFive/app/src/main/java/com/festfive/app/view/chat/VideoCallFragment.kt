@@ -2,38 +2,37 @@ package com.festfive.app.view.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.os.Bundle
+import android.graphics.Rect
+import android.os.Build
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseFragment
-import com.festfive.app.base.viewmodel.EmptyViewModel
 import com.festfive.app.databinding.FragmentVideoCallBinding
 import com.festfive.app.extension.getDefault
+import com.festfive.app.extension.initLinear
 import com.festfive.app.utils.Constants
 import com.festfive.app.viewmodel.chat.StreamViewModel
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.tbruyelle.rxpermissions2.RxPermissions
+import kotlinx.android.synthetic.main.fragment_setup.*
 import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
-import timber.log.Timber
-import java.lang.reflect.Type
 
 
 class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel> (){
+    private val userListAdapter : UserListAdapter by lazy {
+        UserListAdapter {
+            webRtcClient?.callByClientId(it.id.getDefault())
+        }
+    }
+
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
     override fun getLayoutRes(): Int = R.layout.fragment_video_call
@@ -44,31 +43,21 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
         friendId = arguments?.getString(Constants.KEY_PUT_OBJECT).toString()
 
         dataBinding.apply {
-            txtRoomId.setOnClickListener{
-                webRtcClient?.friendId = friendId
-                webRtcClient?.callByClientId(friendId)
-
-                /*mViewModel.requestPermission(RxPermissions(requireActivity()),
-                    arrayOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.RECORD_AUDIO
-                    )
-                ) { granted ->
-                    if (granted){
-                        webRtcClient?.onDestroy()
-                        startWebRTC()
-                    }
-                }*/
+            rc_user.apply {
+                adapter = userListAdapter
+                initLinear(RecyclerView.VERTICAL)
             }
 
             localRenderer.apply {
                 setEnableHardwareScaler(false)
                 init(eglBase.eglBaseContext, null)
+                setZOrderOnTop(true)
             }
 
             remoteRenderer.apply {
                 setEnableHardwareScaler(false)
                 init(eglBase.eglBaseContext, null)
+                setZOrderMediaOverlay(false)
             }
 
             mViewModel.requestPermission(RxPermissions(requireActivity()),
@@ -80,6 +69,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                 if (granted){
                     webRtcClient?.onDestroy()
                     startWebRTC()
+                    MyApp.mSocket.emitData(Constants.KEY_REFRESH_IDS, "")
                 }
             }
         }
@@ -87,17 +77,6 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
 
     override fun initViewModel() {
         super.initViewModel()
-        /*mViewModel.requestPermission(RxPermissions(this),
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-            )
-        ) { granted ->
-            if (granted){
-                webRtcClient?.onDestroy()
-                startWebRTC()
-            }
-        }*/
 
         mViewModel.apply {
             streamSocket.observe(viewLifecycleOwner, Observer {
@@ -109,8 +88,11 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
             myId.observe(viewLifecycleOwner, Observer {
                 if(!it.isNullOrEmpty()){
                     webRtcClient?.onCallReady(it)
-//                    webRtcClient?.callByClientId(friendId)
                 }
+            })
+
+            getUsers().observe(viewLifecycleOwner, Observer {
+                userListAdapter.updateData(it)
             })
         }
     }
@@ -153,7 +135,11 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                 @SuppressLint("LongLogTag")
                 override fun onAddRemoteStream(remoteStream: MediaStream, endPoint: Int) {
                     Log.d("startWebRTC onAddRemoteStream ", Gson().toJson(remoteStream))
-                    remoteStream.videoTracks[0].addSink(dataBinding.remoteRenderer)
+
+                    activity?.runOnUiThread {
+                        updateUI()
+                        remoteStream.videoTracks[0].addSink(dataBinding.remoteRenderer)
+                    }
                 }
 
                 @SuppressLint("LongLogTag")
@@ -161,7 +147,48 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                     Log.d("startWebRTC onRemoveRemoteStream ", endPoint.toString())
                 }
             })
+    }
 
-//        MyApp.mSocket.emitData("get_id", "get_id")
+
+    private fun updateUI() {
+//        dataBinding.localRenderer.setZOrderOnTop(true)
+//        dataBinding.remoteRenderer.setZOrderMediaOverlay(false)
+        /*dataBinding.localRenderer.setVisibility(View.GONE)
+        dataBinding.remoteRenderer.setVisibility(View.GONE)
+        dataBinding.container.removeView(dataBinding.localRenderer)
+        dataBinding.container.removeView(dataBinding.remoteRenderer)
+        dataBinding.localRenderer.setZOrderOnTop(true)
+        dataBinding.remoteRenderer.setZOrderOnTop(false)
+        dataBinding.container.addView(
+            dataBinding.localRenderer,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+        dataBinding.container.addView(
+            dataBinding.remoteRenderer,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+        dataBinding.localRenderer.setVisibility(View.VISIBLE)
+        dataBinding.remoteRenderer.setVisibility(View.VISIBLE)*/
+    }
+
+    override fun onPause() {
+        super.onPause()
+        webRtcClient?.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        webRtcClient?.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        webRtcClient?.onDestroy()
     }
 }

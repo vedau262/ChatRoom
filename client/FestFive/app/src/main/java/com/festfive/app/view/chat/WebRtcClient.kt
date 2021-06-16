@@ -33,8 +33,6 @@ class WebRtcClient(
     private var videoSource: VideoSource? = null
 
     private val mVideoCapturer by lazy { getVideoCapturer() }
-    var friendId = ""
-
 
     init {
         //Initialize PeerConnectionFactory globals.
@@ -49,8 +47,6 @@ class WebRtcClient(
             .setVideoEncoderFactory(defaultVideoEncoderFactory)
             .setVideoDecoderFactory(defaultVideoDecoderFactory)
             .createPeerConnectionFactory()
-
-//        webrtcListener.onCallReady(MyApp.onlineUser.id.getDefault())
 
         //Used when initializing the ICE server to create a PC
         iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer())
@@ -93,17 +89,6 @@ class WebRtcClient(
         localMS = factory.createLocalMediaStream("LOCALMEDIASTREAM")
         localMS?.addTrack(factory.createVideoTrack("LOCALMEDIASTREAM", localVideoSource))
         webrtcListener.onLocalStream(localMS!!)
-
-       /* try {
-            val message = JSONObject()
-            message.put("name", name)
-            socket?.emit("readyToStream", message)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }*/
-
-//        callByClientId(friendId)
-//        MyApp.mSocket.emitData("get_id", "get_id")
     }
 
 

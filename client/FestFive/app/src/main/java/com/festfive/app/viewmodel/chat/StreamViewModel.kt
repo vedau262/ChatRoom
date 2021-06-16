@@ -13,6 +13,8 @@ import javax.inject.Inject
 
 class StreamViewModel @Inject constructor (
 ): BaseViewModel() {
+    private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
+    fun getUsers(): MutableLiveData<MutableList<OnlineUser>> = mUserList
 
     private val _myId = MutableLiveData<String>()
     val myId : LiveData<String>
@@ -45,5 +47,11 @@ class StreamViewModel @Inject constructor (
         if(data!=null){
             _myId.postValue(data.id)
         }
+    }
+
+    override fun onUserJoinChanged(data: MutableList<OnlineUser>) {
+        super.onUserJoinChanged(data)
+        Timber.e("onUserJoinChanged ------> $data")
+        mUserList.value = (data)
     }
 }

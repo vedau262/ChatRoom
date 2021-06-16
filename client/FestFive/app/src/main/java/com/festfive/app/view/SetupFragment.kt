@@ -22,7 +22,9 @@ import timber.log.Timber
 
 class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
 
-    private val userListAdapter= UserListAdapter()
+    private val userListAdapter : UserListAdapter by lazy {
+        UserListAdapter{}
+    }
     override fun getLayoutRes(): Int  = R.layout.fragment_setup
     private var friendID = ""
 

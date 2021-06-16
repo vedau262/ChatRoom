@@ -157,8 +157,12 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
 
             mSocket.onChannel("ids", Emitter.Listener {
                 val ids = it[0] as JSONArray
+                Timber.e("onChannel ids:" + ids)
                 val listType: Type = object : TypeToken<List<OnlineUser?>?>() {}.type
                 val list : ArrayList<OnlineUser> = Gson().fromJson(ids.toString(), listType)
+                list.find { user -> user.id ==  onlineUser.id}?.apply {
+                    isMe = true
+                }
                 val mes = UserSocket(list = list)
                 RxEvent.send(SystemEvent.SocketData(data = mes))
 

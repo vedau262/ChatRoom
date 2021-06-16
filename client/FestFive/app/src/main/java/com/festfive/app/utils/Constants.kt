@@ -12,4 +12,5 @@ object Constants {
     const val KEY_SEND_MESSAGE = "send_message"
     const val KEY_RECEIVE_MESSAGE = "receiver_message"
     const val KEY_GET_ALL_MESSAGES = "get_all_messages"
+    const val KEY_REFRESH_IDS = "refreshids"
 }
