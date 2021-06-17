@@ -10,20 +10,31 @@ import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseFragment
 import com.festfive.app.databinding.FragmentSetupBinding
+import com.festfive.app.extension.createRoomId
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
+import com.festfive.app.model.OnlineUser
 import com.festfive.app.utils.Constants
 import com.festfive.app.view.chat.UserListAdapter
 import com.festfive.app.viewmodel.chat.SetupViewModel
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_setup.*
+import org.json.JSONObject
 import timber.log.Timber
 
 
 class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
 
     private val userListAdapter : UserListAdapter by lazy {
-        UserListAdapter{}
+        UserListAdapter{onClickUser ->
+            Timber.e("onClickUser ${onClickUser.toString()}")
+            if(onClickUser.isCall){
+
+            } else {
+                val roomID = onClickUser.user.id.getDefault().createRoomId( MyApp.onlineUser.id.getDefault())
+                gotoChat(roomID)
+            }
+        }
     }
     override fun getLayoutRes(): Int  = R.layout.fragment_setup
     private var friendID = ""
@@ -39,9 +50,6 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
                 initLinear(RecyclerView.VERTICAL)
             }
 
-            txtRoomId.addTextChangedListener { text ->
-                dataBinding.roomID = text.toString()
-            }
 
             txtUserId.addTextChangedListener { text ->
                 dataBinding.userName = text.toString()
@@ -81,7 +89,21 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
     }
 
     fun gotoChat() {
-        navController.navigate(R.id.action_setupFragment_to_chatFragment)
+        gotoChat(dataBinding.txtRoomId.text.toString())
+    }
+
+    private fun gotoChat(roomID : String) {
+        MyApp.mSocket.emitData(Constants.KEY_JOIN_CHAT_ROOM, roomID)
+        val message = JSONObject()
+        message.put("room", roomID)
+        message.put("name", MyApp.onlineUser.name)
+        MyApp.mSocket.emitData(Constants.KEY_UPDATE_USER_INFO, message)
+        MyApp.updateUser( MyApp.onlineUser.apply {
+            room = roomID
+        })
+        navController.navigate(R.id.action_setupFragment_to_chatFragment, Bundle().apply {
+            putString(Constants.KEY_PUT_OBJECT, roomID)
+        })
     }
 
     fun gotoVideoCall() {

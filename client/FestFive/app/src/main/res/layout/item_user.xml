@@ -7,34 +7,40 @@
         <variable
             name="user"
             type="com.festfive.app.model.OnlineUser" />
+
+        <variable
+            name="listener"
+            type="com.festfive.app.customize.listener.IClickUser" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/dp_15"
-        android:paddingHorizontal="@dimen/dp_10">
+        android:paddingHorizontal="@dimen/dp_10"
+        android:paddingVertical="@dimen/dp_10">
 
         <TextView
             android:id="@+id/txtName"
             style="@style/MainActiveButton"
-            android:layout_width="@dimen/dp_150"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{user.getUserName}"
             android:textColor="@color/color_red"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="@dimen/dp_40"/>
 
-        <TextView
-            android:id="@+id/txtId"
-            style="@style/MainActiveButton"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_mes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{user.room}"
-            android:textColor="@color/black"
-            app:layout_constraintStart_toEndOf="@+id/txtName"
+            android:background="@drawable/ic_message"
+            android:backgroundTint="@color/color_blue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_call"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="@dimen/dp_10"/>
+            android:layout_marginEnd="@dimen/dp_40"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_call"
@@ -42,8 +48,9 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ic_answer"
             android:backgroundTint="@color/color_blue"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

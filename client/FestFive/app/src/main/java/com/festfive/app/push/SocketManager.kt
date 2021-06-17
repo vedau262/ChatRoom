@@ -2,6 +2,7 @@ package com.festfive.app.push
 
 import android.os.Handler
 import android.os.Looper
+import com.festfive.app.application.MyApp
 import com.festfive.app.data.preference.IConfigurationPrefs
 import com.festfive.app.extension.copyObject
 import com.github.nkzawa.emitter.Emitter
@@ -35,12 +36,14 @@ class SocketManager @Inject constructor(
     private fun setupConnectStatus() {
         mSocket?.let {
             it.on("connect") {
-                emitData("test", JSONObject().apply {
-                    put("test", "dung test chat")
-                })
+                emitData("test", "dung test chat")
                 Timber.e("On Socket Connected")
             }
 
+
+            it.on("test") {
+                Timber.e("socket test: ok")
+            }
 
             it.on("disconnect") {
                 Timber.e("On Socket Disconnected")
@@ -68,11 +71,12 @@ class SocketManager @Inject constructor(
             } else {
                 setConnectedCallback(onConnected)
             }
-        }, 1000)
+        }, 100)
     }
 
     fun emitData(key: String, data: Any) {
-        Timber.e("Emit Data: ${Gson().toJson(data)}")
+        Timber.e("Emit Data with event: $key ,data: ${Gson().toJson(data)}")
+        val mes = Gson().toJson(data)
         mSocket?.emit(key, data)
     }
 

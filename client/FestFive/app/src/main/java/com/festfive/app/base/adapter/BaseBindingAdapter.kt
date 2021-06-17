@@ -56,7 +56,7 @@ abstract class BaseBindingAdapter<V : ViewDataBinding, T>(val onClicked: ((T?) -
 
     open fun addListData(list: MutableList<T>) {
         this.list.addAll(list)
-        notifyDataSetChanged()
+        notifyItemRangeChanged(list.indexOf(list[0]), this.list.size)
     }
 
 

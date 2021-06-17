@@ -66,13 +66,13 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
         }
 
         try {
-//creating socket instance
+            //creating socket instance
             mSocket = mSocketManager
         } catch (e: URISyntaxException) {
             throw RuntimeException(e)
         }
 
-        initSocketListener()
+
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -106,88 +106,6 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
 
-    private fun initSocketListener() {
-        mSocket.setConnectedCallback {
-            mSocket.onChannel("test", Emitter.Listener { args ->
-                Timber.e(
-                    "Listener Emit Test ----> ${
-                        args.get(0).toString()
-                    }"
-                )
-            })
-
-            mSocket.onChannel(Constants.KEY_RECEIVE_MESSAGE, Emitter.Listener {
-                /*SocketManager.parseSocketData(it) { data ->
-                    val listType = object : TypeToken<List<String?>?>() {}.type
-
-                    val yourList: List<String> = Gson().fromJson(data, listType)
-                    Timber.e("receiver_message" + yourList)
-                    val mes =
-                        Gson().fromJson(yourList.get(yourList.size - 1), ChatMessage::class.java)
-
-                    *//*if(mes.roomId == this.roomId && mes.userId!=this.userId){
-                        RxEvent.send(SystemEvent.SocketData(data = this))
-                    }*//*
-
-                    RxEvent.send(SystemEvent.SocketData(data = mes))
-                }*/
-
-
-                val messageList = it[0] as JSONArray
-                val listType: Type = object : TypeToken<List<ChatMessage?>?>() {}.type
-                val list : ArrayList<ChatMessage> = Gson().fromJson(messageList.toString(), listType)
-                val mes = MessageSocket(list = list)
-                RxEvent.send(SystemEvent.SocketData(data = mes))
-
-                /*SocketManager.parseSocketData(it) { data ->
-                    val messageList = it[0] as JSONObject
-                    val listType = object : TypeToken<List<ChatMessage?>?>() {}.type
-                    val yourList: ArrayList<ChatMessage> = Gson().fromJson(messageList.toString(), listType)
-                    Timber.e("receiver_message" + yourList)
-//                    val mes = Gson().fromJson(yourList.get(yourList.size - 1), ChatMessage::class.java)
-
-                    if(mes.roomId == this.roomId && mes.userId!=this.userId){
-                        RxEvent.send(SystemEvent.SocketData(data = this))
-                    }
-                    val mes = MessageSocket(list = yourList)
-                    RxEvent.send(SystemEvent.SocketData(data = mes))
-                }*/
-            })
-
-
-            mSocket.onChannel("ids", Emitter.Listener {
-                val ids = it[0] as JSONArray
-                Timber.e("onChannel ids:" + ids)
-                val listType: Type = object : TypeToken<List<OnlineUser?>?>() {}.type
-                val list : ArrayList<OnlineUser> = Gson().fromJson(ids.toString(), listType)
-                list.find { user -> user.id ==  onlineUser.id}?.apply {
-                    isMe = true
-                }
-                val mes = UserSocket(list = list)
-                RxEvent.send(SystemEvent.SocketData(data = mes))
-
-            })
-
-            mSocket.onChannel("id", Emitter.Listener {
-                val id = it[0] as String
-                onlineUser.id = id
-                Timber.e("onChannel id:" + id)
-                val mes: OnlineUser = OnlineUser(id = id)
-                RxEvent.send(SystemEvent.SocketData(data = mes))
-            })
-
-            mSocket.onChannel("message", Emitter.Listener {
-                val data = it[0] as JSONObject
-                Timber.e("onChannel message:" + data)
-                val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java).apply {
-                    payload = data.getJSONObject("payload")
-                }
-
-                Timber.e("onChannel message:" + mes)
-                RxEvent.send(SystemEvent.SocketData(data = mes))
-            })
-        }
-    }
 
 
 
@@ -201,6 +119,65 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
         fun updateUser(user: OnlineUser){
             onlineUser = user
 
+        }
+
+        fun onDestroy(){
+            onlineUser = OnlineUser()
+            mSocket.disconnect()
+        }
+
+        fun initSocketListener() {
+            mSocket.setConnectedCallback {
+                mSocket.onChannel("test", Emitter.Listener { args ->
+                    Timber.e(
+                        "Listener Emit Test ----> ${
+                            args.get(0).toString()
+                        }"
+                    )
+                })
+
+                mSocket.onChannel(Constants.KEY_RECEIVE_MESSAGE, Emitter.Listener {
+                    val messageList = it[0] as JSONArray
+                    Timber.e("onChannel ${Constants.KEY_RECEIVE_MESSAGE}: $messageList")
+                    val listType: Type = object : TypeToken<List<ChatMessage?>?>() {}.type
+                    val list : ArrayList<ChatMessage> = Gson().fromJson(messageList.toString(), listType)
+                    val mes = MessageSocket(list = list)
+                    RxEvent.send(SystemEvent.SocketData(data = mes))
+                })
+
+
+                mSocket.onChannel("ids", Emitter.Listener {
+                    val ids = it[0] as JSONArray
+                    Timber.e("onChannel ids:" + ids)
+                    val listType: Type = object : TypeToken<List<OnlineUser?>?>() {}.type
+                    val list : ArrayList<OnlineUser> = Gson().fromJson(ids.toString(), listType)
+                    list.find { user -> user.id ==  onlineUser.id}?.apply {
+                        isMe = true
+                    }
+                    val mes = UserSocket(list = list)
+                    RxEvent.send(SystemEvent.SocketData(data = mes))
+
+                })
+
+                mSocket.onChannel("id", Emitter.Listener {
+                    val id = it[0] as String
+                    onlineUser.id = id
+                    Timber.e("onChannel id:" + id)
+                    val mes = OnlineUser(id = id)
+                    RxEvent.send(SystemEvent.SocketData(data = mes))
+                })
+
+                mSocket.onChannel("message", Emitter.Listener {
+                    val data = it[0] as JSONObject
+                    Timber.e("onChannel message:" + data)
+                    val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java).apply {
+                        payload = data.getJSONObject("payload")
+                    }
+
+                    Timber.e("onChannel message:" + mes)
+                    RxEvent.send(SystemEvent.SocketData(data = mes))
+                })
+            }
         }
     }
 }

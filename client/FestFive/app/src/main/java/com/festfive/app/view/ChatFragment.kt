@@ -10,6 +10,7 @@ import com.festfive.app.databinding.ChatFragmentBinding
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
 import com.festfive.app.model.ChatMessage
+import com.festfive.app.model.OnlineUser
 import com.festfive.app.utils.Constants
 import com.festfive.app.viewmodel.chat.ChatViewmodel
 import com.google.gson.Gson
@@ -27,11 +28,13 @@ class ChatFragment : BaseFragment<ChatFragmentBinding, ChatViewmodel>(){
 
         mViewModel.apply {
             getMessage().observe(viewLifecycleOwner, Observer {
-                chatAdapter.addListData(it)
-                rc_chat.scrollToPosition(chatAdapter.itemCount-1)
-//                chatAdapter.updateData(it)
+                if(!it.isNullOrEmpty()){
+                    chatAdapter.addListData(it)
+                    rc_chat.scrollToPosition(chatAdapter.itemCount-1)
+                }
             })
 
+            val roomId = arguments?.getString(Constants.KEY_PUT_OBJECT).toString()
             getAllMessage()
         }
 
@@ -44,7 +47,6 @@ class ChatFragment : BaseFragment<ChatFragmentBinding, ChatViewmodel>(){
             rcChat.apply {
                 adapter = chatAdapter
                 initLinear(RecyclerView.VERTICAL)
-
             }
         }
     }

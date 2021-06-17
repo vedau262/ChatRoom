@@ -64,6 +64,8 @@ abstract class BaseActivity<V : ViewDataBinding, T : IBaseViewModel> : DaggerApp
         onChangeStatusBarColor()
         dataBinding = DataBindingUtil.setContentView(this, getLayoutRes())
         dataBinding.lifecycleOwner = this
+        initViewModel()
+        initView()
 
     }
 

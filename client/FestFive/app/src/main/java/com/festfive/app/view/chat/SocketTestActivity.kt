@@ -29,7 +29,13 @@ class SocketTestActivity : BaseActivity<ActivityChatBinding, EmptyViewModel>(){
         }
     }
 
+    override fun initViewModel() {
+        super.initViewModel()
+        MyApp.initSocketListener()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        MyApp.onDestroy()
     }
 }

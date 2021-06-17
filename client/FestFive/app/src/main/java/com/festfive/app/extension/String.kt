@@ -51,3 +51,11 @@ fun String?.html2text(): String {
 }
 
 fun toString(value: Int) = value.toString()
+
+fun String.createRoomId(id: String): String {
+    if(this>id){
+        return this + id
+    } else {
+        return id+ this
+    }
+}

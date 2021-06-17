@@ -24,12 +24,15 @@ import kotlinx.android.synthetic.main.fragment_setup.*
 import org.json.JSONArray
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
+import org.webrtc.PeerConnection
 
 
 class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel> (){
     private val userListAdapter : UserListAdapter by lazy {
         UserListAdapter {
-            webRtcClient?.callByClientId(it.id.getDefault())
+            if(it.isCall){
+                webRtcClient?.callByClientId(it.user.id.getDefault())
+            }
         }
     }
 
@@ -122,6 +125,9 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel
                 override fun onStatusChanged(newStatus: String) {
                     Log.d("startWebRTC onStatusChanged ", newStatus)
                     activity?.runOnUiThread {
+                        if(newStatus == PeerConnection.IceConnectionState.DISCONNECTED.name){
+
+                        }
 //                        Toast.makeText(this@MainActivity, newStatus, Toast.LENGTH_SHORT).show()
                     }
                 }

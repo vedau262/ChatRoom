@@ -1,10 +1,14 @@
 package com.festfive.app.viewmodel.chat
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
+import com.festfive.app.extension.getDefault
 import com.festfive.app.model.OnlineUser
 import com.festfive.app.push.SocketManager
+import com.festfive.app.utils.Constants
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -13,9 +17,6 @@ import javax.inject.Inject
 class SetupViewModel @Inject constructor (
     private val socketManager: SocketManager
 ): BaseViewModel() {
-
-    private var roomId: String = ""
-    private var name: String =  ""
     private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
 
     init {
@@ -23,12 +24,12 @@ class SetupViewModel @Inject constructor (
     }
 
     fun setupChat(roomId: String, name: String) {
-        if(this.roomId.isNullOrEmpty() || this.name.isNullOrEmpty()){
+        if(MyApp.onlineUser.id.getDefault().isNullOrEmpty()){
             try {
                 val message = JSONObject()
                 message.put("room", roomId)
                 message.put("name", name)
-                socketManager?.emitData("readyToStream", message)
+                socketManager?.emitData(Constants.KEY_READY_TO_STREAM, message)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -37,13 +38,11 @@ class SetupViewModel @Inject constructor (
                 val message = JSONObject()
                 message.put("room", roomId)
                 message.put("name", name)
-                socketManager?.emitData("update", message)
+                socketManager?.emitData(Constants.KEY_UPDATE_USER_INFO, message)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
-        this.roomId = roomId
-        this.name = name
         MyApp.updateUser(OnlineUser(room = roomId, name = name, id = MyApp.onlineUser.id, isMe =  MyApp.onlineUser.isMe))
 
     }

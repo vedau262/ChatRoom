@@ -30,7 +30,7 @@ data class OnlineUser(
     var id: String? = null,
     val name: String? = null,
     var isMe: Boolean = false,
-    val room : String? = null
+    var room : String? = null
 ){
     fun  getUserName() : String = if(isMe) "me: " + name else name.getDefault()
 }
@@ -43,9 +43,9 @@ data class StreamSocket(
 ) {
 }
 
-data class payload(
-    val type : String? = null,
-    val sdp : String? = null
+data class OnClickUser(
+    val user : OnlineUser,
+    val isCall : Boolean
 ) {
 }
 
