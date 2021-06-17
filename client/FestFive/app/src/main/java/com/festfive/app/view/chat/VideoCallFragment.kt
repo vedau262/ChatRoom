@@ -2,12 +2,7 @@ package com.festfive.app.view.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.graphics.Rect
-import android.os.Build
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
@@ -17,7 +12,7 @@ import com.festfive.app.databinding.FragmentVideoCallBinding
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
 import com.festfive.app.utils.Constants
-import com.festfive.app.viewmodel.chat.StreamViewModel
+import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.fragment_setup.*
@@ -27,7 +22,7 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 
 
-class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, StreamViewModel> (){
+class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewModel> (){
     private val userListAdapter : UserListAdapter by lazy {
         UserListAdapter {
             if(it.isCall){

@@ -9,7 +9,6 @@ import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseActivity
 import com.festfive.app.base.viewmodel.EmptyViewModel
 import com.festfive.app.databinding.ActivityChatBinding
-import com.festfive.app.view.ChatAdapter
 
 const val REQUEST_CODE_PERMISSION = 100
 class SocketTestActivity : BaseActivity<ActivityChatBinding, EmptyViewModel>(){

@@ -9,7 +9,7 @@
 
         <variable
             name="iView"
-            type="com.festfive.app.view.SetupFragment" />
+            type="com.festfive.app.view.chat.SetupFragment" />
 
         <variable
             name="roomID"
@@ -73,7 +73,6 @@
             app:layout_constraintTop_toBottomOf="@+id/btn_setUp"
             android:textColor="@color/black"
             android:hint="Enter your name"
-            android:text="dung"
             android:layout_marginTop="@dimen/dp_10"/>
 
         <androidx.appcompat.widget.AppCompatButton
