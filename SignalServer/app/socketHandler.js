@@ -56,6 +56,17 @@ module.exports = function(io, streams) {
       client.emit("ids", streams.getStreams());
     });
 
+    client.on("start_video_call", function(details) {
+      console.log("-- start_video_call to" + details.to);	
+      var otherClient = io.sockets.connected[details.to];
+	    
+      if (!otherClient) {
+        return;
+      }      
+      details.from = client.id;
+      otherClient.emit("start_video_call", details);
+    });
+
 	
     client.on('test', function(data){
       client.emit('test',data);
