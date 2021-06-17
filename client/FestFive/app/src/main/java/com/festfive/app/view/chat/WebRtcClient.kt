@@ -160,6 +160,16 @@ class WebRtcClient(
     }
 
 
+    private fun requestCall(to: String, type: String, payload: JSONObject) {
+        Timber.e("sendMessage to " + to)
+        val message = JSONObject()
+        message.put("to", to)
+        message.put("type", type)
+        message.put("payload", payload)
+        MyApp.mSocket.emitData("message", message)
+    }
+
+
     fun processStreamSocket(data: StreamSocket){
         Timber.e("processStreamSocket: "+ data)
         try {

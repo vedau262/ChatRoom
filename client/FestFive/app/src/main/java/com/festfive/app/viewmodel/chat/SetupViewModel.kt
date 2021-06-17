@@ -7,6 +7,7 @@ import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
 import com.festfive.app.extension.getDefault
 import com.festfive.app.model.OnlineUser
+import com.festfive.app.model.VideoCall
 import com.festfive.app.push.SocketManager
 import com.festfive.app.utils.Constants
 import org.json.JSONException
@@ -18,6 +19,11 @@ class SetupViewModel @Inject constructor (
     private val socketManager: SocketManager
 ): BaseViewModel() {
     private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
+    private var _videoCall: MutableLiveData<VideoCall> = MutableLiveData()
+    val videoCall: MutableLiveData<VideoCall>
+        get() {
+            return _videoCall
+        }
 
     init {
         this.onBindSocketReceivedListener()
@@ -53,5 +59,12 @@ class SetupViewModel @Inject constructor (
         super.onUserJoinChanged(data)
         Timber.e("onUserJoinChanged ------> $data")
         mUserList.value = (data)
+    }
+
+    override fun onVideoCall(data: VideoCall) {
+        super.onVideoCall(data)
+        if(MyApp.onlineUser.id.getDefault() == data.to){
+            _videoCall.postValue(data)
+        }
     }
 }

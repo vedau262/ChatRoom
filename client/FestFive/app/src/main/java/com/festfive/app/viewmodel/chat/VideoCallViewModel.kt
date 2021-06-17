@@ -11,7 +11,7 @@ import org.json.JSONObject
 import timber.log.Timber
 import javax.inject.Inject
 
-class StreamViewModel @Inject constructor (
+class VideoCallViewModel @Inject constructor (
 ): BaseViewModel() {
     private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
     fun getUsers(): MutableLiveData<MutableList<OnlineUser>> = mUserList

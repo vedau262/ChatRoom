@@ -1,4 +1,4 @@
-package com.festfive.app.view
+package com.festfive.app.view.chat
 
 import com.festfive.app.base.view.IBaseActivity
 import com.festfive.app.viewmodel.chat.ChatViewmodel

@@ -11,12 +11,15 @@ import com.festfive.app.base.view.BaseFragment
 import com.festfive.app.databinding.FragmentVideoCallBinding
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
+import com.festfive.app.model.OnlineUser
+import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
 import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.fragment_setup.*
 import org.json.JSONArray
+import org.json.JSONObject
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
@@ -38,13 +41,14 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     override fun initView() {
         super.initView()
-        friendId = arguments?.getString(Constants.KEY_PUT_OBJECT).toString()
+        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        friendId = videoCall.from.getDefault()
 
         dataBinding.apply {
-            rc_user.apply {
+           /* rc_user.apply {
                 adapter = userListAdapter
                 initLinear(RecyclerView.VERTICAL)
-            }
+            }*/
 
             localRenderer.apply {
                 setEnableHardwareScaler(false)
@@ -67,7 +71,15 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                 if (granted){
                     webRtcClient?.onDestroy()
                     startWebRTC()
-                    MyApp.mSocket.emitData(Constants.KEY_REFRESH_IDS, "")
+                    MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, friendId)
+//                    webRtcClient?.callByClientId(friendId)
+
+                    val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+                    friendId = videoCall.from.getDefault()
+                    val message = JSONObject()
+                    message.put("to", friendId)
+                    message.put("from", MyApp.onlineUser.id)
+                    MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
                 }
             }
         }

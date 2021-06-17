@@ -1,27 +1,19 @@
-package com.festfive.app.view
+package com.festfive.app.view.chat
 
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
-import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseFragment
-import com.festfive.app.databinding.ChatFragmentBinding
-import com.festfive.app.extension.getDefault
+import com.festfive.app.databinding.FragmentChatBinding
 import com.festfive.app.extension.initLinear
-import com.festfive.app.model.ChatMessage
-import com.festfive.app.model.OnlineUser
 import com.festfive.app.utils.Constants
 import com.festfive.app.viewmodel.chat.ChatViewmodel
-import com.google.gson.Gson
-import kotlinx.android.synthetic.main.chat_fragment.*
-import org.json.JSONException
-import org.json.JSONObject
+import kotlinx.android.synthetic.main.fragment_chat.*
 
-class ChatFragment : BaseFragment<ChatFragmentBinding, ChatViewmodel>(){
+class ChatFragment : BaseFragment<FragmentChatBinding, ChatViewmodel>(){
     val chatAdapter = ChatAdapter()
 
-    override fun getLayoutRes(): Int =  R.layout.chat_fragment
+    override fun getLayoutRes(): Int =  R.layout.fragment_chat
 
     override fun initViewModel() {
         super.initViewModel()

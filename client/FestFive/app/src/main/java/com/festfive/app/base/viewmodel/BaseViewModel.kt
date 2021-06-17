@@ -143,6 +143,7 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
                     is UserSocket -> onUserJoinChanged(it.data.list)
                     is StreamSocket -> onStreamChanged(it.data)
                     is OnlineUser -> onMyIdChanged(it.data)
+                    is VideoCall -> onVideoCall(it.data)
                 }
             })
     }
@@ -157,5 +158,8 @@ abstract class BaseViewModel :ViewModel(),  IBaseViewModel,
     }
 
     open fun onMyIdChanged(data: OnlineUser) {
+    }
+
+    open fun onVideoCall(data: VideoCall) {
     }
 }

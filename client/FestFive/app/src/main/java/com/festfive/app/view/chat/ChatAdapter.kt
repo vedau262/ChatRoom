@@ -1,9 +1,7 @@
-package com.festfive.app.view
+package com.festfive.app.view.chat
 
-import android.util.Log
 import com.festfive.app.R
 import com.festfive.app.base.adapter.BaseBindingAdapter
-import com.festfive.app.base.adapter.BaseViewHolder
 import com.festfive.app.databinding.ItemChatBinding
 import com.festfive.app.model.ChatMessage
 
