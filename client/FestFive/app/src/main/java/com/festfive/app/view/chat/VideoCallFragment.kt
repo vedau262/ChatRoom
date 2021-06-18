@@ -3,12 +3,14 @@ package com.festfive.app.view.chat
 import android.Manifest
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseFragment
 import com.festfive.app.databinding.FragmentVideoCallBinding
+import com.festfive.app.extension.disable
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
 import com.festfive.app.model.OnlineUser
@@ -33,8 +35,11 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
     private val eglBase by lazy { EglBase.create() }
     override fun getLayoutRes(): Int = R.layout.fragment_video_call
 
+    private val myId = MyApp.onlineUser.id.getDefault()
+
     override fun initView() {
         super.initView()
+//        showVideoView(false)
 
         dataBinding.apply {
             iView = this@VideoCallFragment
@@ -73,12 +78,6 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
             streamSocket.observe(viewLifecycleOwner, Observer {
                 it?.let {
                     webRtcClient?.processStreamSocket(it)
-                }
-            })
-
-            myId.observe(viewLifecycleOwner, Observer {
-                if(!it.isNullOrEmpty()){
-                    webRtcClient?.onCallReady(it)
                 }
             })
 
@@ -133,7 +132,6 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                     Log.d("startWebRTC onAddRemoteStream ", Gson().toJson(remoteStream))
 
                     activity?.runOnUiThread {
-                        updateUI()
                         remoteStream.videoTracks[0].addSink(dataBinding.remoteRenderer)
                     }
                 }
@@ -160,6 +158,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
         message.put("to", friendId)
         message.put("from", MyApp.onlineUser.id)
         MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
+        webRtcClient?.onCallReady(myId)
     }
 
     fun onStartAnswer() {
@@ -167,16 +166,28 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
         val friendId = videoCall.from.getDefault()
         Timber.e(TAG + "onStartAnswer to $friendId")
         MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
+        webRtcClient?.onCallReady(myId)
         webRtcClient?.callByClientId(friendId)
+        showVideoView(true)
     }
 
     fun onAnswerAccept() {
         val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         val friendId = videoCall.to.getDefault()
+        val myId = videoCall.to.getDefault()
         Timber.e(TAG + "onAnswerAccept from $friendId")
+        showVideoView(true)
     }
 
-    private fun updateUI() {
+    private fun showVideoView(isShow: Boolean) {
+        if(isShow){
+            dataBinding.localRenderer.visibility = View.VISIBLE
+            dataBinding.remoteRenderer.visibility = View.VISIBLE
+        } else {
+            dataBinding.localRenderer.visibility = View.INVISIBLE
+            dataBinding.remoteRenderer.visibility = View.INVISIBLE
+        }
+
     }
 
     override fun onPause() {
@@ -192,7 +203,11 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
     override fun onDestroy() {
         super.onDestroy()
         webRtcClient?.onDestroy()
+        dataBinding.localRenderer.clearAnimation()
+        dataBinding.remoteRenderer.clearAnimation()
+        dataBinding.localRenderer.disable()
+        dataBinding.remoteRenderer.disable()
+//        dataBinding.localRenderer.release()
+//        dataBinding.remoteRenderer.release()
     }
-
-
 }

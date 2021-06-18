@@ -159,7 +159,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics-ktx'*/
 
     //WebRTC
-    implementation 'org.webrtc:google-webrtc:1.0.28513'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
 
     //noinspection GradleCompatible
     implementation 'com.android.support:design:28.0.0-alpha1'

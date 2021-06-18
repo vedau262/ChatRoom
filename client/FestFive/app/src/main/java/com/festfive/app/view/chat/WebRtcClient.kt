@@ -9,6 +9,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection
+import org.webrtc.Logging
 import org.webrtc.PeerConnection.IceServer
 import timber.log.Timber
 import java.util.*
@@ -47,14 +48,7 @@ class WebRtcClient(
         //Used when initializing the ICE server to create a PC
         iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer())
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
-        /*iceServers.add(PeerConnection.IceServer.builder("stun:stunserver.org").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.ekiga.net").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.fwdnet.net").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.ideasip.com").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.iptel.org").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.rixtelecom.se").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("stun:stun.schlund.de").createIceServer())*/
-//        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
         iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("vedau262@gmail.com").setPassword("205323109").createIceServer())
 
 
@@ -100,6 +94,7 @@ class WebRtcClient(
      * Call this method in Activity.onPause()
      */
     fun onPause() {
+        Timber.e(TAG + "onPause")
         videoSource?.capturerObserver?.onCapturerStopped()
     }
 
@@ -107,6 +102,7 @@ class WebRtcClient(
      * Call this method in Activity.onResume()
      */
     fun onResume() {
+        Timber.e(TAG + "onResume")
         videoSource?.capturerObserver?.onCapturerStarted(true)
     }
 
@@ -118,6 +114,8 @@ class WebRtcClient(
         for (peer in peers.values) {
             peer.pc?.dispose()
         }
+
+
         videoSource?.dispose()
         factory.dispose()
        /* socket?.disconnect()

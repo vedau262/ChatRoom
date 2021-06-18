@@ -18,12 +18,6 @@ class VideoCallViewModel @Inject constructor (
 ): BaseViewModel() {
     private val TAG = "VideoCallViewModel: "
 
-    private val _myId = MutableLiveData<String>()
-    val myId : LiveData<String>
-        get() {
-            return _myId
-        }
-
     private val _onAnswerAccept = MutableLiveData<Boolean>(false)
     val onAnswerAccept : LiveData<Boolean>
         get() {
@@ -51,13 +45,5 @@ class VideoCallViewModel @Inject constructor (
             _streamSocket.postValue(data)
         }
 
-    }
-
-    override fun onMyIdChanged(data: OnlineUser) {
-        super.onMyIdChanged(data)
-        Timber.e(TAG + "onMyIdChanged "+data)
-        if(data!=null){
-            _myId.postValue(data.id)
-        }
     }
 }

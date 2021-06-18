@@ -35,33 +35,39 @@
 
         <ImageButton
             android:id="@+id/endCall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:padding="@dimen/dp_5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/changeMic"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/ic_cancel"
+            android:background="@drawable/bg_circle_red"
+            app:srcCompat="@drawable/ic_call"
             onSingleClick="@{() -> iView.onStartAnswer()}"/>
 
         <ImageButton
             android:id="@+id/changeMic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:padding="@dimen/dp_5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/endCall"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_circle_grey"
             app:srcCompat="@drawable/ic_speaker"/>
 
         <ImageButton
             android:id="@+id/changeCam"
-            android:layout_width="@dimen/dp_30"
-            android:layout_height="@dimen/dp_30"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_margin="@dimen/dp_6"
-            android:src="@drawable/ic_switch" />
+            android:layout_margin="@dimen/dp_5"
+            android:background="@drawable/bg_circle_red"
+            android:padding="@dimen/dp_5"
+            android:srcCompat="@drawable/ic_switch_cam"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
