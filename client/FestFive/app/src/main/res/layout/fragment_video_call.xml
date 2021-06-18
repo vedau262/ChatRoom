@@ -3,14 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data></data>
+    <data>
+        <variable
+            name="iView"
+            type="com.festfive.app.view.chat.VideoCallFragment" />
+
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:keepScreenOn="true"
-        android:id="@+id/constraintLayout5"
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".view.activity.videocall.VideoCall">
+        android:layout_height="match_parent">
 
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/remoteRenderer"
@@ -25,33 +29,30 @@
             android:id="@+id/local_renderer"
             android:layout_width="90dp"
             android:layout_height="180dp"
-            android:layout_margin="@dimen/dp_20"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_margin="@dimen/dp_10"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <ImageButton
             android:id="@+id/endCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginLeft="32dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintBottom_toBottomOf="@+id/changeMic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/changeMic"
-            app:srcCompat="@drawable/ic_cancel" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:srcCompat="@drawable/ic_cancel"
+            onSingleClick="@{() -> iView.onStartAnswer()}"/>
 
         <ImageButton
             android:id="@+id/changeMic"
-            android:layout_width="@dimen/dp_30"
-            android:layout_height="@dimen/dp_30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/endCall"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_cancel"           />
+            app:srcCompat="@drawable/ic_speaker"/>
 
         <ImageButton
             android:id="@+id/changeCam"

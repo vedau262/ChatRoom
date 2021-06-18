@@ -178,10 +178,10 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
                     RxEvent.send(SystemEvent.SocketData(data = mes))
                 })
 
-                mSocket.onChannel(Constants.KEY_START_VIDEO_CALL, Emitter.Listener {
+                mSocket.onChannel(Constants.KEY_INCOMING_VIDEO_CALL, Emitter.Listener {
                     val id = it[0] as JSONObject
                     Timber.e("onChannel $:" + id)
-                    val mes = VideoCall(from = id.getString("from"), to = id.getString("to"))
+                    val mes = VideoCall(from = id.getString("from"), to = id.getString("to"), isReceive=true)
                     RxEvent.send(SystemEvent.SocketData(data = mes))
                 })
             }

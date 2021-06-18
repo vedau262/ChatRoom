@@ -11,7 +11,6 @@ import com.festfive.app.databinding.FragmentSetupBinding
 import com.festfive.app.extension.createRoomId
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
-import com.festfive.app.model.OnlineUser
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
 import com.festfive.app.viewmodel.chat.SetupViewModel
@@ -27,7 +26,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         UserListAdapter{onClickUser ->
             Timber.e("onClickUser ${onClickUser.toString()}")
             if(onClickUser.isCall){
-                gotoVideoCall(VideoCall(to=onClickUser.user.id.getDefault()))
+                gotoGroupVideoCall(VideoCall(to=onClickUser.user.id.getDefault()))
             } else {
                 val roomID = onClickUser.user.id.getDefault().createRoomId( MyApp.onlineUser.id.getDefault())
                 gotoChat(roomID)
@@ -66,7 +65,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             videoCall.observe(viewLifecycleOwner, Observer {
                 //get call from friend
                 it?.let {
-                    gotoVideoCall(it)
+                    gotoGroupVideoCall(it)
                 }
 
             })
@@ -107,7 +106,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         })
     }
 
-    fun gotoVideoCall(videoCall: VideoCall) {
+    fun gotoGroupVideoCall(videoCall: VideoCall) {
         navController.navigate(R.id.action_setupFragment_to_videoCallFragment,
             Bundle().apply {
                 putString(
@@ -116,8 +115,8 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             )
         })
 }
-    fun gotoVideoCall() {
-        navController.navigate(R.id.action_setupFragment_to_videoCallFragment,
+    fun gotoGroupVideoCall() {
+        navController.navigate(R.id.action_setupFragment_to_groupVideoCallFragment,
         Bundle().apply {
             putString(
                 Constants.KEY_PUT_OBJECT,

@@ -31,16 +31,17 @@ class SetupViewModel @Inject constructor (
 
     fun setupChat(roomId: String, name: String) {
         if(MyApp.onlineUser.id.getDefault().isNullOrEmpty()){
-            try {
-                val message = JSONObject()
-                message.put("room", roomId)
-                message.put("name", name)
-                socketManager?.emitData(Constants.KEY_READY_TO_STREAM, message)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
+            MyApp.initSocketListener()
+           Handler().postDelayed({
+               Timber.e("setupChat Init")
+               val message = JSONObject()
+               message.put("room", roomId)
+               message.put("name", name)
+               socketManager?.emitData(Constants.KEY_READY_TO_STREAM, message)
+           }, 1000)
         } else {
             try {
+                Timber.e("setupChat Update")
                 val message = JSONObject()
                 message.put("room", roomId)
                 message.put("name", name)

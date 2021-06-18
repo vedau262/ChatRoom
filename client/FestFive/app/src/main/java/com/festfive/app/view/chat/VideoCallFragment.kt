@@ -23,9 +23,11 @@ import org.json.JSONObject
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
+import timber.log.Timber
 
 
 class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewModel> (){
+    private val TAG = "VideoCallFragment: "
     private val userListAdapter : UserListAdapter by lazy {
         UserListAdapter {
             if(it.isCall){
@@ -41,14 +43,15 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     override fun initView() {
         super.initView()
-        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-        friendId = videoCall.from.getDefault()
+//        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+//        friendId = videoCall.from.getDefault()
 
         dataBinding.apply {
            /* rc_user.apply {
                 adapter = userListAdapter
                 initLinear(RecyclerView.VERTICAL)
             }*/
+            iView = this@VideoCallFragment
 
             localRenderer.apply {
                 setEnableHardwareScaler(false)
@@ -71,15 +74,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                 if (granted){
                     webRtcClient?.onDestroy()
                     startWebRTC()
-                    MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, friendId)
-//                    webRtcClient?.callByClientId(friendId)
-
-                    val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-                    friendId = videoCall.from.getDefault()
-                    val message = JSONObject()
-                    message.put("to", friendId)
-                    message.put("from", MyApp.onlineUser.id)
-                    MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
+                    checkIsCalling()
                 }
             }
         }
@@ -103,6 +98,12 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
             getUsers().observe(viewLifecycleOwner, Observer {
                 userListAdapter.updateData(it)
+            })
+
+            onAnswerAccept.observe(viewLifecycleOwner, Observer {
+                if(it){
+                    onAnswerAccept()
+                }
             })
         }
     }
@@ -162,32 +163,39 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
             })
     }
 
+    private fun checkIsCalling() {
+        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        if(!videoCall.isReceive.getDefault()){
+            onStartCall()
+        }
+    }
+
+    fun onStartCall() {
+        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        val friendId = videoCall.to.getDefault()
+        Timber.e(TAG + "onStartCall $friendId")
+        val message = JSONObject()
+        message.put("to", friendId)
+        message.put("from", MyApp.onlineUser.id)
+        MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
+    }
+
+    fun onStartAnswer() {
+        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        val friendId = videoCall.from.getDefault()
+        Timber.e(TAG + "onStartAnswer to $friendId")
+        MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
+        webRtcClient?.callByClientId(friendId)
+    }
+
+    fun onAnswerAccept() {
+        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        val friendId = videoCall.to.getDefault()
+        Timber.e(TAG + "onAnswerAccept $friendId webRtcClient: $webRtcClient")
+        webRtcClient?.callByClientId(friendId)
+    }
 
     private fun updateUI() {
-//        dataBinding.localRenderer.setZOrderOnTop(true)
-//        dataBinding.remoteRenderer.setZOrderMediaOverlay(false)
-        /*dataBinding.localRenderer.setVisibility(View.GONE)
-        dataBinding.remoteRenderer.setVisibility(View.GONE)
-        dataBinding.container.removeView(dataBinding.localRenderer)
-        dataBinding.container.removeView(dataBinding.remoteRenderer)
-        dataBinding.localRenderer.setZOrderOnTop(true)
-        dataBinding.remoteRenderer.setZOrderOnTop(false)
-        dataBinding.container.addView(
-            dataBinding.localRenderer,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
-        dataBinding.container.addView(
-            dataBinding.remoteRenderer,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
-        dataBinding.localRenderer.setVisibility(View.VISIBLE)
-        dataBinding.remoteRenderer.setVisibility(View.VISIBLE)*/
     }
 
     override fun onPause() {
@@ -204,4 +212,6 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
         super.onDestroy()
         webRtcClient?.onDestroy()
     }
+
+
 }

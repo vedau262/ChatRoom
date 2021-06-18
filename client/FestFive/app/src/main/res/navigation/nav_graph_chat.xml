@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_setupFragment_to_videoCallFragment"
             app:destination="@id/videoCallFragment" />
+        <action
+            android:id="@+id/action_setupFragment_to_groupVideoCallFragment"
+            app:destination="@id/groupVideoCallFragment" />
     </fragment>
 
     <fragment
@@ -28,4 +31,8 @@
         android:name="com.festfive.app.view.chat.VideoCallFragment"
         android:label="VideoCallFragment"
         tools:layout="@layout/fragment_video_call"/>
+    <fragment
+        android:id="@+id/groupVideoCallFragment"
+        android:name="com.festfive.app.view.chat.GroupVideoCallFragment"
+        android:label="GroupVideoCallFragment" />
 </navigation>

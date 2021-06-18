@@ -16,5 +16,8 @@ object Constants {
     const val KEY_GET_ALL_MESSAGES = "get_all_messages"
     const val KEY_REFRESH_IDS = "refreshids"
     const val KEY_JOIN_CHAT_ROOM = "join_chat_room"
-    const val KEY_START_VIDEO_CALL = "start_video_call"
+    const val KEY_START_VIDEO_CALL = "startCall"
+    const val KEY_INCOMING_VIDEO_CALL = "inComing"
+    const val KEY_START_ANSWER = "startAnswer"
+    const val KEY_ACCEPT_VIDEO_CALL = "onAnswerAccept"
 }

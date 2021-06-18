@@ -2,21 +2,17 @@ package com.festfive.app.view.chat
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import com.festfive.app.application.MyApp
-import com.festfive.app.extension.getDefault
 import com.festfive.app.model.StreamSocket
-import com.festfive.app.push.SocketManager
-import com.github.nkzawa.socketio.client.Socket
-import io.reactivex.Emitter
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
+import org.webrtc.PeerConnection
+import org.webrtc.PeerConnection.IceServer
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.util.*
-import javax.inject.Inject
+
 
 class WebRtcClient(
        private val app: Application,
@@ -51,7 +47,15 @@ class WebRtcClient(
         //Used when initializing the ICE server to create a PC
         iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer())
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
-        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
+        /*iceServers.add(PeerConnection.IceServer.builder("stun:stunserver.org").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.ekiga.net").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.fwdnet.net").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.ideasip.com").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.iptel.org").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.rixtelecom.se").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:stun.schlund.de").createIceServer())*/
+//        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("vedau262@gmail.com").setPassword("205323109").createIceServer())
 
 
         //Initialize the local MediaConstraints used when creating the PC, which is the configuration information of the streaming media
@@ -110,6 +114,7 @@ class WebRtcClient(
      * Call this method in Activity.onDestroy()
      */
     fun onDestroy() {
+        Timber.e(TAG + "onDestroy")
         for (peer in peers.values) {
             peer.pc?.dispose()
         }
@@ -138,6 +143,7 @@ class WebRtcClient(
 
 
     fun callByClientId(clientId: String) {
+        Timber.e("callByClientId $clientId}")
         sendMessage(clientId, "init", JSONObject())
     }
 
@@ -208,7 +214,7 @@ class WebRtcClient(
 
 
         init {
-            this.pc = factory.createPeerConnection(iceServers, pcConstraints, this)
+            this.pc = factory.createPeerConnection(iceServers, this)
             pc?.addStream(localMS!!) //, new MediaConstraints()
             Timber.e("new Peer: $id $endPoint ${pc != null}")
             webrtcListener.onStatusChanged("CONNECTING")
@@ -310,13 +316,13 @@ class WebRtcClient(
     }
 
     private fun createOffer(peerId: String) {
-        Log.d(TAG, "CreateOfferCommand peerId "+ peerId)
+        Timber.e(TAG + "CreateOfferCommand peerId "+ peerId)
         val peer = peers[peerId]
         peer?.pc?.createOffer(peer, pcConstraints)
     }
 
     private fun createAnswer(peerId: String, payload: JSONObject?) {
-        Log.d(TAG, "CreateAnswerCommand payload "+ payload)
+        Timber.e(TAG + "CreateAnswerCommand payload "+ payload)
         val peer = peers[peerId]
         val sdp = SessionDescription(
             SessionDescription.Type.fromCanonicalForm(payload?.getString("type")),
@@ -327,7 +333,7 @@ class WebRtcClient(
     }
 
     private fun setRemoteSdp(peerId: String, payload: JSONObject?) {
-        Log.d(TAG, "SetRemoteSDPCommand")
+        Timber.e(TAG + "SetRemoteSDPCommand")
         val peer = peers[peerId]
         val sdp = SessionDescription(
             SessionDescription.Type.fromCanonicalForm(payload?.getString("type")),
@@ -337,7 +343,7 @@ class WebRtcClient(
     }
 
     private fun addIceCandidate(peerId: String, payload: JSONObject?) {
-        Log.d(TAG, "AddIceCandidateCommand "+ payload)
+        Timber.e(TAG + "AddIceCandidateCommand "+ payload)
         val pc = peers[peerId]!!.pc
         if (pc!!.remoteDescription != null) {
             val candidate = IceCandidate(

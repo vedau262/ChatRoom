@@ -51,7 +51,8 @@ data class OnClickUser(
 
 data class VideoCall(
     val to : String?=null,
-    val from : String?=null
+    val from : String?=null,
+    val isReceive : Boolean?=false
 ) {
 }
 

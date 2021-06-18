@@ -15,7 +15,7 @@ module.exports = function(io, streams) {
 
     client.on("message", function(details) {
       var otherClient = io.sockets.connected[details.to];
-	    console.log("-- " + client.id + " message --" + details);	
+	    // console.log("-- " + client.id + " message --" + details);	
       if (!otherClient) {
         return;
       }
@@ -56,15 +56,25 @@ module.exports = function(io, streams) {
       client.emit("ids", streams.getStreams());
     });
 
-    client.on("start_video_call", function(details) {
-      console.log("-- start_video_call to" + details.to);	
+    client.on("startCall", function(details) {
+      console.log("-- startCall to " + details.to);	
       var otherClient = io.sockets.connected[details.to];
 	    
       if (!otherClient) {
         return;
       }      
       details.from = client.id;
-      otherClient.emit("start_video_call", details);
+      otherClient.emit("inComing", details);
+    });
+	
+	client.on("startAnswer", function(toClient) {
+      console.log("-- startAnswer to " + toClient);	
+      var otherClient = io.sockets.connected[toClient];
+	    
+      if (!otherClient) {
+        return;
+      }
+      otherClient.emit("onAnswerAccept");
     });
 
 	
