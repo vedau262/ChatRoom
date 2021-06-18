@@ -28,29 +28,15 @@ import timber.log.Timber
 
 class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewModel> (){
     private val TAG = "VideoCallFragment: "
-    private val userListAdapter : UserListAdapter by lazy {
-        UserListAdapter {
-            if(it.isCall){
-                webRtcClient?.callByClientId(it.user.id.getDefault())
-            }
-        }
-    }
 
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
     override fun getLayoutRes(): Int = R.layout.fragment_video_call
-    var friendId = ""
 
     override fun initView() {
         super.initView()
-//        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-//        friendId = videoCall.from.getDefault()
 
         dataBinding.apply {
-           /* rc_user.apply {
-                adapter = userListAdapter
-                initLinear(RecyclerView.VERTICAL)
-            }*/
             iView = this@VideoCallFragment
 
             localRenderer.apply {
@@ -94,10 +80,6 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                 if(!it.isNullOrEmpty()){
                     webRtcClient?.onCallReady(it)
                 }
-            })
-
-            getUsers().observe(viewLifecycleOwner, Observer {
-                userListAdapter.updateData(it)
             })
 
             onAnswerAccept.observe(viewLifecycleOwner, Observer {
@@ -173,7 +155,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
     fun onStartCall() {
         val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         val friendId = videoCall.to.getDefault()
-        Timber.e(TAG + "onStartCall $friendId")
+        Timber.e(TAG + "onStartCall to $friendId")
         val message = JSONObject()
         message.put("to", friendId)
         message.put("from", MyApp.onlineUser.id)
@@ -191,8 +173,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
     fun onAnswerAccept() {
         val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         val friendId = videoCall.to.getDefault()
-        Timber.e(TAG + "onAnswerAccept $friendId webRtcClient: $webRtcClient")
-        webRtcClient?.callByClientId(friendId)
+        Timber.e(TAG + "onAnswerAccept from $friendId")
     }
 
     private fun updateUI() {

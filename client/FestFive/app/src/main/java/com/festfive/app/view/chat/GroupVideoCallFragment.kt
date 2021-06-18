@@ -153,30 +153,6 @@ class GroupVideoCallFragment  : BaseFragment<FragmentGroupVideoCallBinding, Grou
 
 
     private fun updateUI() {
-//        dataBinding.localRenderer.setZOrderOnTop(true)
-//        dataBinding.remoteRenderer.setZOrderMediaOverlay(false)
-        /*dataBinding.localRenderer.setVisibility(View.GONE)
-        dataBinding.remoteRenderer.setVisibility(View.GONE)
-        dataBinding.container.removeView(dataBinding.localRenderer)
-        dataBinding.container.removeView(dataBinding.remoteRenderer)
-        dataBinding.localRenderer.setZOrderOnTop(true)
-        dataBinding.remoteRenderer.setZOrderOnTop(false)
-        dataBinding.container.addView(
-            dataBinding.localRenderer,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
-        dataBinding.container.addView(
-            dataBinding.remoteRenderer,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
-        dataBinding.localRenderer.setVisibility(View.VISIBLE)
-        dataBinding.remoteRenderer.setVisibility(View.VISIBLE)*/
     }
 
     override fun onPause() {

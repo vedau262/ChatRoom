@@ -17,8 +17,6 @@ class VideoCallViewModel @Inject constructor (
     private val socketManager: SocketManager
 ): BaseViewModel() {
     private val TAG = "VideoCallViewModel: "
-    private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
-    fun getUsers(): MutableLiveData<MutableList<OnlineUser>> = mUserList
 
     private val _myId = MutableLiveData<String>()
     val myId : LiveData<String>
@@ -61,11 +59,5 @@ class VideoCallViewModel @Inject constructor (
         if(data!=null){
             _myId.postValue(data.id)
         }
-    }
-
-    override fun onUserJoinChanged(data: MutableList<OnlineUser>) {
-        super.onUserJoinChanged(data)
-        Timber.e(TAG + "onUserJoinChanged ------> $data")
-        mUserList.value = (data)
     }
 }
