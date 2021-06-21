@@ -20,7 +20,9 @@
         android:usesCleartextTraffic="true">
 
         <activity android:name=".view.MainActivity"></activity>
-        <activity android:name=".view.call.VideoCallActivity"></activity>
+        <activity android:name=".view.call.VideoCallActivity"
+            android:noHistory="true"
+            ></activity>
 
         <activity android:name=".view.chat.SocketTestActivity">
             <intent-filter>

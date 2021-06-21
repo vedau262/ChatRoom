@@ -2,7 +2,7 @@ package com.festfive.app.view.call
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,12 +12,14 @@ import androidx.lifecycle.Observer
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseActivity
+import com.festfive.app.customize.listener.SignallingClientListener
 import com.festfive.app.databinding.ActivityVideoCallBinding
-import com.festfive.app.databinding.FragmentVideoCallBinding
 import com.festfive.app.extension.disable
 import com.festfive.app.extension.getDefault
+import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
+import com.festfive.app.utils.SharePreferencesUtils.Companion.context
 import com.festfive.app.view.chat.WebRtcClient
 import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import com.google.gson.Gson
@@ -29,9 +31,11 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import timber.log.Timber
 
-class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewModel>(){
+
+class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewModel>(), SignallingClientListener {
     private val TAG = "VideoCallActivity: "
 
+    private var mContext: Activity? = null
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
 
@@ -42,6 +46,7 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mContext = viewContext as Activity?
         val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(videoCall.isReceive.getDefault()){
             friendId = videoCall.from.getDefault()
@@ -51,8 +56,9 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
             myId = videoCall.from.getDefault()
             dataBinding.acceptCall.visibility = View.GONE
         }
-
+        mViewModel.setCallback(this)
     }
+
     override fun initView() {
         super.initView()
 //        showVideoView(false)
@@ -90,30 +96,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     override fun initViewModel() {
         super.initViewModel()
-
-        mViewModel.apply {
-            streamSocket.observe(this@VideoCallActivity, Observer {
-                it?.let {
-                    webRtcClient?.processStreamSocket(it)
-                }
-            })
-
-            onAnswerAccept.observe(this@VideoCallActivity, Observer {
-                if(it){
-                    onAnswerAccept()
-                }
-            })
-
-            onEndCall.observe(this@VideoCallActivity, Observer {
-                if(it){
-                    Timber.e(TAG + "onEndCall.observe "+ it)
-                    mViewModel.resetValue()
-                    Handler().postDelayed({
-                        onEndCall()
-                    }, 100)
-                }
-            })
-        }
     }
 
     @SuppressLint("LongLogTag")
@@ -195,11 +177,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         showVideoView(true)
     }
 
-    fun onAnswerAccept() {
-        Timber.e(TAG + "onAnswerAccept from $friendId")
-        showVideoView(true)
-    }
-
     fun endCall() {
         Timber.e(TAG + "endCall to $friendId")
         mViewModel.endCall(friendId)
@@ -208,17 +185,32 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         dataBinding.remoteRenderer.clearAnimation()
         dataBinding.localRenderer.disable()
         dataBinding.remoteRenderer.disable()
-        finish()
+        killActivity()
     }
 
-    fun onEndCall() {
+    override fun onAnswerAccept() {
+        Timber.e(TAG + "onAnswerAccept from $friendId")
+        showVideoView(true)
+    }
+
+    override fun onEndCall() {
+        endCall()
         Timber.e(TAG + "onEndCall from $friendId")
         webRtcClient?.onDestroy()
         dataBinding.localRenderer.clearAnimation()
         dataBinding.remoteRenderer.clearAnimation()
         dataBinding.localRenderer.disable()
         dataBinding.remoteRenderer.disable()
-        finish()
+        killActivity()
+    }
+
+    override fun onProcessStreamSocket(data: StreamSocket) {
+        data?.let {
+            webRtcClient?.processStreamSocket(it)
+        }
+    }
+    private fun killActivity() {
+        mContext?.finish()
     }
 
     private fun showVideoView(isShow: Boolean) {
@@ -245,16 +237,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
     override fun onStop() {
         super.onStop()
         mViewModel.endCall(friendId)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        /*webRtcClient?.onDestroy()
-        dataBinding.localRenderer.clearAnimation()
-        dataBinding.remoteRenderer.clearAnimation()
-        dataBinding.localRenderer.disable()
-        dataBinding.remoteRenderer.disable()*/
-//        dataBinding.localRenderer.release()
-//        dataBinding.remoteRenderer.release()
+        webRtcClient?.onDestroy()
     }
 }

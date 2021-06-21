@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
+import com.festfive.app.customize.listener.SignallingClientListener
 import com.festfive.app.extension.getDefault
 import com.festfive.app.model.OnlineUser
 import com.festfive.app.model.StreamSocket
@@ -20,34 +21,18 @@ class VideoCallViewModel @Inject constructor (
 ): BaseViewModel() {
     private val TAG = "VideoCallViewModel: "
 
-    private val _onAnswerAccept = MutableLiveData<Boolean>(false)
-    val onAnswerAccept : LiveData<Boolean>
-        get() {
-            return _onAnswerAccept
-        }
-
-    private val _onEndCall = MutableLiveData<Boolean>(false)
-    val onEndCall : LiveData<Boolean>
-        get() {
-            return _onEndCall
-        }
-
-    private val _streamSocket = MutableLiveData<StreamSocket>()
-    val streamSocket : LiveData<StreamSocket>
-        get() {
-            return _streamSocket
-        }
+    var callbacks: SignallingClientListener? = null
 
     init {
         this.onBindSocketReceivedListener()
         socketManager.onChannel(Constants.KEY_ACCEPT_VIDEO_CALL, Emitter.Listener {
-            Timber.e(TAG + Constants.KEY_ACCEPT_VIDEO_CALL + it)
-            _onAnswerAccept.postValue(true)
+            Timber.e(TAG + Constants.KEY_ACCEPT_VIDEO_CALL)
+            callbacks?.onAnswerAccept()
         })
 
         socketManager.onChannel(Constants.KEY_END_CALL, Emitter.Listener {
-            Timber.e(TAG +  Constants.KEY_END_CALL + _onEndCall.value.getDefault())
-            _onEndCall.postValue(true)
+            Timber.e(TAG +  Constants.KEY_END_CALL)
+            callbacks?.onEndCall()
         })
     }
 
@@ -55,18 +40,15 @@ class VideoCallViewModel @Inject constructor (
         MyApp.mSocket.emitData(Constants.KEY_END_CALL, friendId)
     }
 
-    fun resetValue() {
-        _onAnswerAccept.value = false
-        _onEndCall.value = false
-        Timber.e(TAG + "resetValue ")
+    fun setCallback(callback: SignallingClientListener) {
+        this.callbacks = callback
     }
 
     override fun onStreamChanged(data: StreamSocket) {
         super.onStreamChanged(data)
         Timber.e(TAG + "onStreamChanged "+data)
         if(data!=null){
-            _streamSocket.postValue(data)
+            callbacks?.onProcessStreamSocket(data)
         }
-
     }
 }
