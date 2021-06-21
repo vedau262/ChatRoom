@@ -1,5 +1,6 @@
 package com.festfive.app.view.chat
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
@@ -13,6 +14,7 @@ import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
+import com.festfive.app.view.call.VideoCallActivity
 import com.festfive.app.viewmodel.chat.SetupViewModel
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_setup.*
@@ -26,7 +28,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         UserListAdapter{onClickUser ->
             Timber.e("onClickUser ${onClickUser.toString()}")
             if(onClickUser.isCall){
-                gotoGroupVideoCall(VideoCall(to=onClickUser.user.id.getDefault()))
+                gotoVideoCall(VideoCall(from = MyApp.onlineUser.id, to=onClickUser.user.id.getDefault()))
             } else {
                 val roomID = onClickUser.user.id.getDefault().createRoomId( MyApp.onlineUser.id.getDefault())
                 gotoChat(roomID)
@@ -65,7 +67,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             videoCall.observe(viewLifecycleOwner, Observer {
                 //get call from friend
                 it?.let {
-                    gotoGroupVideoCall(it)
+                    gotoVideoCall(it)
                 }
 
             })
@@ -106,16 +108,21 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         })
     }
 
-    fun gotoGroupVideoCall(videoCall: VideoCall) {
-        navController.navigate(R.id.action_setupFragment_to_videoCallFragment,
+    fun gotoVideoCall(videoCall: VideoCall) {
+        val intent = Intent(requireContext(), VideoCallActivity::class.java)
+        intent.putExtra(Constants.KEY_PUT_OBJECT,
+            Gson().toJson(videoCall)
+        )
+        requireContext().startActivity(intent)
+        /*navController.navigate(R.id.action_setupFragment_to_videoCallFragment,
             Bundle().apply {
                 putString(
                     Constants.KEY_PUT_OBJECT,
                     Gson().toJson(videoCall)
             )
-        })
+        })*/
 }
-    fun gotoGroupVideoCall() {
+    fun gotoVideoCall() {
         navController.navigate(R.id.action_setupFragment_to_groupVideoCallFragment,
         Bundle().apply {
             putString(

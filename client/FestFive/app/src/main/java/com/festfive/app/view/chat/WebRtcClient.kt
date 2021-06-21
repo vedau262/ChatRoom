@@ -36,6 +36,7 @@ class WebRtcClient(
         val initializationOptions = PeerConnectionFactory.InitializationOptions.builder(app).createInitializationOptions()
         PeerConnectionFactory.initialize(initializationOptions)
         val options = PeerConnectionFactory.Options()
+//        options.disableEncryption = true;
 
         val defaultVideoEncoderFactory = DefaultVideoEncoderFactory(eglContext,   true, true)
         val defaultVideoDecoderFactory = DefaultVideoDecoderFactory(eglContext)
@@ -110,16 +111,16 @@ class WebRtcClient(
      * Call this method in Activity.onDestroy()
      */
     fun onDestroy() {
-        Timber.e(TAG + "onDestroy")
         for (peer in peers.values) {
             peer.pc?.dispose()
         }
 
-
+        mVideoCapturer.stopCapture()
         videoSource?.dispose()
-        factory.dispose()
+//        factory.dispose()
        /* socket?.disconnect()
         socket?.close()*/
+        Timber.e(TAG + "onDestroy")
     }
 
     /**
@@ -354,7 +355,7 @@ class WebRtcClient(
     }
 
     companion object {
-        const val TAG = "WebRtcClient"
+        const val TAG = "WebRtcClient "
         const val MAX_PEER = 2
     }
 }

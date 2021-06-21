@@ -108,7 +108,7 @@
             app:layout_constraintTop_toTopOf="@+id/txtUserId"
             app:layout_constraintRight_toLeftOf="@+id/btn_chat"
             android:layout_marginEnd="@dimen/dp_10"
-            android:onClick="@{() -> iView.gotoGroupVideoCall()}"
+            android:onClick="@{() -> iView.gotoVideoCall()}"
             android:visibility="@{setupDone? View.VISIBLE : View.INVISIBLE}"/>
 
         <TextView

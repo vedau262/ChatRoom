@@ -67,14 +67,24 @@ module.exports = function(io, streams) {
       otherClient.emit("inComing", details);
     });
 	
-	client.on("startAnswer", function(toClient) {
-      console.log("-- startAnswer to " + toClient);	
+	client.on("startAnswer", function(toClient) {      
       var otherClient = io.sockets.connected[toClient];
 	    
       if (!otherClient) {
         return;
       }
+	  console.log("-- startAnswer to " + toClient);	
       otherClient.emit("onAnswerAccept");
+    });
+	
+	client.on("onEndCall", function(toClient) {      
+      var otherClient = io.sockets.connected[toClient];
+	    
+      if (!otherClient) {
+        return;
+      }
+	  console.log("-- onEndCall to " + toClient);	
+      otherClient.emit("onEndCall");
     });
 
 	

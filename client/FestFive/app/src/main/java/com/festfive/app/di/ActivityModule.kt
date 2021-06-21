@@ -5,7 +5,9 @@ import com.festfive.app.di.scope.ActivityScoped
 import com.festfive.app.view.MainViewModule
 import com.festfive.app.view.chat.SocketTestActivity
 import com.festfive.app.view.ViewModelModule
+import com.festfive.app.view.call.VideoCallActivity
 import com.festfive.app.view.chat.ChatViewModule
+import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -23,6 +25,10 @@ abstract class ActivityModule {
 
     @ActivityScoped
     @ContributesAndroidInjector(modules = [ChatViewModule::class])
-    internal abstract fun contributeSocketTestActivity(): SocketTestActivity
+    internal abstract fun contributeSocketTestActivity():
+
+    SocketTestActivity@ActivityScoped
+    @ContributesAndroidInjector()
+    internal abstract fun contributeVideoCallActivity(): VideoCallActivity
 
 }
