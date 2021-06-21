@@ -24,18 +24,23 @@ import com.festfive.app.view.chat.WebRtcClient
 import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
 class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewModel>(), SignallingClientListener {
     private val TAG = "VideoCallActivity: "
 
-    private var mContext: Activity? = null
+    private var task: Disposable? = null
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
 
@@ -46,7 +51,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mContext = viewContext as Activity?
         val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(videoCall.isReceive.getDefault()){
             friendId = videoCall.from.getDefault()
@@ -156,6 +160,17 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(!videoCall.isReceive.getDefault()){
             onStartCall()
+            task = Observable.timer(40000, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+//                    Toast.makeText(this, "Not answer!", Toast.LENGTH_SHORT).show()
+                    mViewModel.endCall(friendId)
+                    webRtcClient?.onDestroy()
+                    Handler().postDelayed({
+                        finish()
+                    }, 2000)
+                }
         }
     }
 
@@ -180,22 +195,18 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
     fun endCall() {
         Timber.e(TAG + "endCall to $friendId")
         mViewModel.endCall(friendId)
-        webRtcClient?.onDestroy()
-        dataBinding.localRenderer.clearAnimation()
-        dataBinding.remoteRenderer.clearAnimation()
-        dataBinding.localRenderer.disable()
-        dataBinding.remoteRenderer.disable()
-        killActivity()
+        task?.dispose()
+       onEndCall()
     }
 
     override fun onAnswerAccept() {
         Timber.e(TAG + "onAnswerAccept from $friendId")
         showVideoView(true)
+        task?.dispose()
     }
 
     override fun onEndCall() {
-        endCall()
-        Timber.e(TAG + "onEndCall from $friendId")
+        Timber.e(TAG + "onEndCall")
         webRtcClient?.onDestroy()
         dataBinding.localRenderer.clearAnimation()
         dataBinding.remoteRenderer.clearAnimation()
@@ -210,7 +221,10 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         }
     }
     private fun killActivity() {
-        mContext?.finish()
+        runOnUiThread {
+            Timber.e(TAG + "killActivity ")
+            finish()
+        }
     }
 
     private fun showVideoView(isShow: Boolean) {
@@ -238,5 +252,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         super.onStop()
         mViewModel.endCall(friendId)
         webRtcClient?.onDestroy()
+        webRtcClient = null
     }
 }
