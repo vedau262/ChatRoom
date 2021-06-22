@@ -1,5 +1,6 @@
 package com.festfive.app.view.chat
 
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
@@ -40,11 +41,15 @@ class ChatFragment : BaseFragment<FragmentChatBinding, ChatViewmodel>(){
                 adapter = chatAdapter
                 initLinear(RecyclerView.VERTICAL)
             }
+
+            input.addTextChangedListener {text ->
+                dataBinding.enableSend = !text.toString().trim().isNullOrEmpty()
+            }
         }
     }
 
     fun onSendMessage() {
-        val mes = dataBinding.input.text.toString()
+        val mes = dataBinding.input.text.toString().trim()
         mViewModel.sendMessage(mes)
         dataBinding.input.text.clear()
     }

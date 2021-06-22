@@ -4,9 +4,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+        <import type="com.festfive.app.R"/>
+        <import type="com.festfive.app.extension.ContextCompatExtKt" />
+        <import type="android.view.View" />
+
         <variable
             name="iView"
             type="com.festfive.app.view.chat.ChatFragment" />
+
+        <variable
+            name="enableSend"
+            type="Boolean" />
         
     </data>
 
@@ -40,7 +48,9 @@
             android:padding="@dimen/dp_10"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_menu_send" />
+            app:srcCompat="@drawable/ic_menu_send"
+            app:setViewDisable="@{!enableSend}"
+            android:tint="@{ContextCompatExtKt.getColor(enableSend ? R.color.color_green : R.color.color_grey)}"/>
 
         <TextView
             android:id="@+id/txtRoomId"

@@ -22,16 +22,16 @@
             style="@style/MainActiveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="room ID"
             android:background="@color/backgroundGray"
+            android:text="room ID"
+            android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="@color/color_blue"
             android:textStyle="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textAlignment="center"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rc_user"
@@ -60,7 +60,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-
+        <ImageView
+            android:id="@+id/endCall"
+            onSingleClick="@{() -> iView.endCall()}"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:layout_marginBottom="@dimen/dp_15"
+            android:background="@drawable/bg_circle_red"
+            android:padding="@dimen/dp_5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_cancel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

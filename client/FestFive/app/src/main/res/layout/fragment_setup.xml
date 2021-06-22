@@ -28,107 +28,111 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.chat.SocketTestActivity"
-        android:layout_marginVertical="@dimen/dp_15">
+        android:layout_marginVertical="@dimen/dp_15"
+        tools:context=".view.chat.SocketTestActivity">
+
         <TextView
             android:id="@+id/txtRoom"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginHorizontal="@dimen/dp_10"
             style="@style/BoldText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_10"
+            android:text="Room: "
             android:textColor="@color/black"
-            android:text="Room: "/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/txtRoomId"
-            android:layout_height="wrap_content"
-            android:layout_width="@dimen/dp_150"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/txtRoom"
-            android:layout_marginHorizontal="@dimen/dp_5"
             style="@style/BoldText"
+            android:layout_width="@dimen/dp_150"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_5"
+            android:text="123456789"
             android:textColor="@color/black"
-            android:text="123456789">
-        </TextView>
+            app:layout_constraintStart_toEndOf="@+id/txtRoom"
+            app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <TextView
             android:id="@+id/txtUserName"
-            android:layout_height="wrap_content"
+            style="@style/BoldText"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/txtUserId"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_10"
+            android:text="Name: "
+            android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="@id/txtUserId"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginHorizontal="@dimen/dp_10"
-            style="@style/BoldText"
-            android:textColor="@color/black"
-            android:text="Name: "/>
+            app:layout_constraintTop_toTopOf="@id/txtUserId" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/txtUserId"
-            android:layout_height="@dimen/dp_56"
             android:layout_width="@dimen/dp_100"
+            android:layout_height="@dimen/dp_56"
             android:layout_marginHorizontal="@dimen/dp_5"
-            app:layout_constraintStart_toEndOf="@id/txtUserName"
-            app:layout_constraintTop_toBottomOf="@+id/btn_setUp"
-            android:textColor="@color/black"
+            android:layout_marginTop="@dimen/dp_10"
             android:hint="Enter your name"
-            android:layout_marginTop="@dimen/dp_10"/>
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/txtUserName"
+            app:layout_constraintTop_toBottomOf="@+id/btn_setUp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_setUp"
             style="@style/MainActiveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="set up"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:onClick="@{() -> iView.setupChat()}"
             android:backgroundTint="@{ContextCompatExtKt.getColor(userName.length() >= 1 ? R.color.color_blue : R.color.color_grey)}"
+            android:onClick="@{() -> iView.setupChat()}"
+            android:text="set up"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:setViewDisable="@{userName.length() &lt;= 0}" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_chat"
             style="@style/MainActiveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/color_blue"
-            android:text="Chat Room"
-            app:layout_constraintTop_toTopOf="@+id/txtUserId"
-            app:layout_constraintRight_toRightOf="parent"
             android:onClick="@{() -> iView.gotoChat()}"
-            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"/>
+            android:text="Chat Room"
+            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/txtUserId" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_call"
             style="@style/MainActiveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/color_blue"
-            android:text="Call"
-            app:layout_constraintTop_toTopOf="@+id/txtUserId"
-            app:layout_constraintRight_toLeftOf="@+id/btn_chat"
             android:layout_marginEnd="@dimen/dp_10"
+            android:backgroundTint="@color/color_blue"
             android:onClick="@{() -> iView.gotoGroupVideoCall()}"
-            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"/>
+            android:text="Call"
+            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintRight_toLeftOf="@+id/btn_chat"
+            app:layout_constraintTop_toTopOf="@+id/txtUserId" />
 
         <TextView
             android:id="@+id/txtName"
             style="@style/MainActiveButton"
-            android:layout_width="@dimen/dp_150"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User Name"
-            android:textColor="@color/color_red"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="Online"
+            android:textColor="@color/color_green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtUserId"
-            android:layout_marginTop="@dimen/dp_10"/>
+            app:layout_constraintTop_toBottomOf="@+id/txtUserId" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rc_user"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/txtName"
+            android:layout_marginTop="@dimen/dp_10"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="@dimen/dp_10"/>
+            app:layout_constraintTop_toBottomOf="@+id/txtName" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

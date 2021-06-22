@@ -2,6 +2,7 @@ package com.festfive.app.viewmodel.chat
 
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
@@ -21,9 +22,12 @@ class SetupViewModel @Inject constructor (
     private val socketManager: SocketManager
 ): BaseViewModel() {
     var onlineUser = OnlineUser()
+
     private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
+    fun getUsers(): LiveData<MutableList<OnlineUser>> = mUserList
+
     private var _videoCall: MutableLiveData<VideoCall> = MutableLiveData()
-    val videoCall: MutableLiveData<VideoCall>
+    val videoCall: LiveData<VideoCall>
         get() {
             return _videoCall
         }
@@ -58,8 +62,6 @@ class SetupViewModel @Inject constructor (
         MyApp.updateUser(OnlineUser(room = roomId, name = name, id = MyApp.onlineUser.id, isMe =  MyApp.onlineUser.isMe))
 
     }
-
-    fun getUsers(): MutableLiveData<MutableList<OnlineUser>> = mUserList
 
     override fun onUserJoinChanged(data: MutableList<OnlineUser>) {
         super.onUserJoinChanged(data)

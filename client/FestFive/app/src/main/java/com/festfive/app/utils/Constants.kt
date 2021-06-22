@@ -22,4 +22,5 @@ object Constants {
     const val KEY_ACCEPT_VIDEO_CALL = "onAnswerAccept"
     const val KEY_END_CALL = "onEndCall"
     const val KEY_STREAM_VIDEO_CALL = "video_call"
+    const val KEY_START_GROUP_CALL = "startGroupCall"
 }

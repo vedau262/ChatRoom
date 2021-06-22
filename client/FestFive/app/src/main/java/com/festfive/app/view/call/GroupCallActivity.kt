@@ -10,6 +10,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseActivity
@@ -17,11 +18,14 @@ import com.festfive.app.customize.listener.SignallingClientListener
 import com.festfive.app.databinding.ActivityGroupCallBinding
 import com.festfive.app.extension.disable
 import com.festfive.app.extension.getDefault
+import com.festfive.app.extension.initGrid
+import com.festfive.app.extension.initLinear
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
-import com.festfive.app.viewmodel.call.VideoCallViewModel
+import com.festfive.app.viewmodel.call.GroupCallViewModel
 import com.festfive.app.viewmodel.call.WebRtcClient
+import com.festfive.app.viewmodel.call.WebRtcGroup
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -29,6 +33,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.android.synthetic.main.activity_group_call.*
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.EglBase
@@ -38,12 +43,20 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 
-class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewModel>(), SignallingClientListener {
-    private val TAG = "VideoCallActivity: "
+class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewModel>(), SignallingClientListener {
+    private val TAG = "GroupCallActivity: "
+
+    private val mAdapter : UserCallGroupAdapter by lazy {
+        UserCallGroupAdapter {
+            if(it.isCall){
+                webRtcClient?.callByClientId(it.user.id.getDefault())
+            }
+        }
+    }
 
     private var task: Disposable? = null
     private var taskEndCall: Disposable? = null
-    private var webRtcClient: WebRtcClient? = null
+    private var webRtcClient: WebRtcGroup? = null
     private val eglBase by lazy { EglBase.create() }
     private var mAudio: AudioManager? = null
     private var cameraOn: Boolean = true
@@ -51,7 +64,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
     private var isMute: Boolean = false
 
     private var myId = ""
-    private var friendId = ""
+    private var myRoomId = ""
     var endCallSubject = PublishSubject.create<Boolean>()
 
     override fun getLayoutRes(): Int = R.layout.activity_group_call
@@ -59,15 +72,9 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        myRoomId = intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString()
+        myId = MyApp.onlineUser.id.getDefault()
         mAudio = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-        if(videoCall.isReceive.getDefault()){
-            friendId = videoCall.from.getDefault()
-            myId = videoCall.to.getDefault()
-        } else {
-            friendId = videoCall.to.getDefault()
-            myId = videoCall.from.getDefault()
-        }
         mViewModel.setCallback(this)
 
         taskEndCall = (endCallSubject
@@ -90,6 +97,11 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
 
         dataBinding.apply {
             iView = this@GroupCallActivity
+
+            rc_user.apply {
+                adapter = mAdapter
+                initGrid(3)
+            }
 
             localRenderer.apply {
                 setEnableHardwareScaler(false)
@@ -121,6 +133,12 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
 
     override fun initViewModel() {
         super.initViewModel()
+        mViewModel.apply {
+            userList.observe(this@GroupCallActivity, androidx.lifecycle.Observer {
+                mAdapter.updateData(it)
+            })
+        }
+
     }
 
     fun setSpeaker() {
@@ -171,10 +189,10 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
     @SuppressLint("LongLogTag")
     private fun startWebRTC() {
         Log.d("startWebRTC ", "startWebRTC")
-        webRtcClient = WebRtcClient(
+        webRtcClient = WebRtcGroup(
             this.application,
             eglBase.eglBaseContext,
-            object : WebRtcClient.RtcListener {
+            object : WebRtcGroup.RtcListener {
                 @SuppressLint("LongLogTag")
                 override fun onOnlineIdsChanged(jsonArray: JSONArray) {
                     runOnUiThread {
@@ -223,50 +241,36 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
     }
 
     private fun checkIsCalling() {
-        val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-        if(!videoCall.isReceive.getDefault()){
-            onStartCall()
-            task = Observable.timer(20000, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    Toast.makeText(this, "Not answer!", Toast.LENGTH_SHORT).show()
-                    mViewModel.endCall(friendId)
-                    webRtcClient?.onDestroy()
-                    Handler().postDelayed({
-                        finish()
-                    }, 2000)
-                }
-        }
+        onStartCall()
     }
 
     fun onStartCall() {
-        Timber.e(TAG + "onStartCall to $friendId")
+        Timber.e(TAG + "onStartCall to $myRoomId")
         val message = JSONObject()
-        message.put("to", friendId)
+        message.put("to", myRoomId)
         message.put("from", myId)
-        MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
+        MyApp.mSocket.emitData(Constants.KEY_START_GROUP_CALL, myRoomId)
         webRtcClient?.onCallReady(myId)
     }
 
     fun onStartAnswer() {
-        Timber.e(TAG + "onStartAnswer to $friendId")
+        Timber.e(TAG + "onStartAnswer to $myRoomId")
 //        dataBinding.acceptCall.visibility = View.GONE
-        MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
+        MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, myRoomId)
         webRtcClient?.onCallReady(myId)
-        webRtcClient?.callByClientId(friendId)
+        webRtcClient?.callByClientId(myRoomId)
         showVideoView(true)
     }
 
     fun endCall() {
-        Timber.e(TAG + "endCall to $friendId")
+        Timber.e(TAG + "endCall to $myRoomId")
         task?.dispose()
-        mViewModel.endCall(friendId)
+        mViewModel.endCall(myRoomId)
        onEndCall()
     }
 
     override fun onAnswerAccept() {
-        Timber.e(TAG + "onAnswerAccept from $friendId")
+        Timber.e(TAG + "onAnswerAccept from $myRoomId")
         task?.dispose()
         showVideoView(true)
     }
@@ -319,7 +323,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewMod
         super.onStop()
         task?.dispose()
         taskEndCall?.dispose()
-        mViewModel.endCall(friendId)
+        mViewModel.endCall(myRoomId)
         webRtcClient?.onDestroy()
     }
 }

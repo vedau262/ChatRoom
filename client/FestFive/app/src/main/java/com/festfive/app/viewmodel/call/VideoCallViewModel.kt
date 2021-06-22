@@ -37,7 +37,7 @@ class VideoCallViewModel @Inject constructor (
     }
 
     fun endCall(friendId: String) {
-        MyApp.mSocket.emitData(Constants.KEY_END_CALL, friendId)
+        socketManager.emitData(Constants.KEY_END_CALL, friendId)
     }
 
     fun setCallback(callback: SignallingClientListener) {

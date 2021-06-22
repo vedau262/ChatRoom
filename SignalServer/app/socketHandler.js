@@ -87,6 +87,11 @@ module.exports = function(io, streams) {
       otherClient.emit("onEndCall");
     });
 
+	client.on("startGroupCall", function(roomId) {
+	    console.log("-- startGroupCall" , roomId);
+      client.join(roomId);
+	  io.to(roomId).emit("ids", streams.getStreams());
+    });
 	
     client.on('test', function(data){
       client.emit('test',data);

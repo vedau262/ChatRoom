@@ -24,7 +24,7 @@ import timber.log.Timber
 
 
 class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
-
+    private var myRoomId = ""
     private val userListAdapter : UserListAdapter by lazy {
         UserListAdapter{onClickUser ->
             Timber.e("onClickUser ${onClickUser.toString()}")
@@ -36,8 +36,8 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             }
         }
     }
+
     override fun getLayoutRes(): Int  = R.layout.fragment_setup
-    private var myGroupId = ""
 
     override fun initView() {
         super.initView()
@@ -86,7 +86,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
 
     fun setupChat() {
         val room = dataBinding.txtRoomId.text.toString()
-        myGroupId = room
+        myRoomId = room
         val user = dataBinding.txtUserId.text.toString()
 
         if(room.isNotEmpty() && user.isNotEmpty()){
@@ -118,10 +118,11 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             Gson().toJson(videoCall)
         )
         requireContext().startActivity(intent)
-}
+    }
+
     fun gotoGroupVideoCall() {
         val intent = Intent(requireContext(), GroupCallActivity::class.java)
-        intent.putExtra(Constants.KEY_PUT_OBJECT,myGroupId)
+        intent.putExtra(Constants.KEY_PUT_OBJECT, myRoomId)
         requireContext().startActivity(intent)
     }
 }
