@@ -19,9 +19,6 @@
         android:theme="@style/Theme.FestFive"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".view.MainActivity"></activity>
-        <activity android:name=".view.call.VideoCallActivity"></activity>
-
         <activity android:name=".view.chat.SocketTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,6 +26,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".view.MainActivity"></activity>
+        <activity android:name=".view.call.VideoCallActivity"></activity>
+        <activity android:name=".view.call.GroupCallActivity"></activity>
     </application>
 
 </manifest>

@@ -20,8 +20,8 @@ import com.festfive.app.extension.getDefault
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
-import com.festfive.app.view.chat.WebRtcClient
-import com.festfive.app.viewmodel.chat.VideoCallViewModel
+import com.festfive.app.viewmodel.call.VideoCallViewModel
+import com.festfive.app.viewmodel.call.WebRtcClient
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -194,7 +194,7 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
                 override fun onStatusChanged(newStatus: String) {
                     Log.d("startWebRTC onStatusChanged ", newStatus)
                     runOnUiThread {
-                        if(newStatus == PeerConnection.IceConnectionState.DISCONNECTED.name){
+                        if (newStatus == PeerConnection.IceConnectionState.DISCONNECTED.name) {
 
                         }
 //                        Toast.makeText(this@MainActivity, newStatus, Toast.LENGTH_SHORT).show()
@@ -252,7 +252,6 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     fun onStartAnswer() {
         Timber.e(TAG + "onStartAnswer to $friendId")
-        task?.dispose()
         dataBinding.acceptCall.visibility = View.GONE
         MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
         webRtcClient?.onCallReady(myId)
@@ -319,8 +318,9 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     override fun onStop() {
         super.onStop()
+        task?.dispose()
+        taskEndCall?.dispose()
         mViewModel.endCall(friendId)
         webRtcClient?.onDestroy()
-        webRtcClient = null
     }
 }

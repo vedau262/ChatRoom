@@ -11,6 +11,7 @@
     <string name="btn_share">Share</string>
     <string name="btn_next">Next</string>
     <string name="btn_finish">Finish</string>
+    <string name="btn_update">Update</string>
 
     <string name="text_1_minute_ago">1 minute ago</string>
     <string name="text_x_minutes_ago">%d minutes ago</string>

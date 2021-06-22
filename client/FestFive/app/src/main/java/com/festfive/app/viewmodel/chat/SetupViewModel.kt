@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.lifecycle.MutableLiveData
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
+import com.festfive.app.data.preference.IConfigurationPrefs
 import com.festfive.app.extension.getDefault
 import com.festfive.app.model.OnlineUser
 import com.festfive.app.model.VideoCall
@@ -16,8 +17,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class SetupViewModel @Inject constructor (
+    private val prefs: IConfigurationPrefs,
     private val socketManager: SocketManager
 ): BaseViewModel() {
+    var onlineUser = OnlineUser()
     private var mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
     private var _videoCall: MutableLiveData<VideoCall> = MutableLiveData()
     val videoCall: MutableLiveData<VideoCall>
@@ -27,6 +30,7 @@ class SetupViewModel @Inject constructor (
 
     init {
         this.onBindSocketReceivedListener()
+        onlineUser = prefs.userInfo
     }
 
     fun setupChat(roomId: String, name: String) {
@@ -38,7 +42,7 @@ class SetupViewModel @Inject constructor (
                message.put("room", roomId)
                message.put("name", name)
                socketManager?.emitData(Constants.KEY_READY_TO_STREAM, message)
-           }, 1000)
+           }, 500)
         } else {
             try {
                 Timber.e("setupChat Update")
@@ -50,6 +54,7 @@ class SetupViewModel @Inject constructor (
                 e.printStackTrace()
             }
         }
+        prefs.userInfo = OnlineUser(room = roomId, name = name)
         MyApp.updateUser(OnlineUser(room = roomId, name = name, id = MyApp.onlineUser.id, isMe =  MyApp.onlineUser.isMe))
 
     }

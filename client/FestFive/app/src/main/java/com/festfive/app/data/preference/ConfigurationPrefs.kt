@@ -3,6 +3,7 @@ package com.festfive.app.data.preference
 import android.content.Context
 import com.festfive.app.BuildConfig
 import com.festfive.app.extension.getDefault
+import com.festfive.app.model.OnlineUser
 import com.festfive.app.utils.Utils
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -17,6 +18,7 @@ class ConfigurationPrefs @Inject constructor(
     companion object {
         private const val KEY_API_TOKEN = "KEY_API_TOKEN"
         private const val KEY_DEFAULT_LANGUAGE = "KEY_DEFAULT_LANGUAGE"
+        private const val KEY_USER_INFO = "KEY_DEFAULT_LANGUAGE"
         private val defaultLanguage = Utils.languageDefault()
     }
 
@@ -34,6 +36,12 @@ class ConfigurationPrefs @Inject constructor(
     override var language: String
         get() = pref.getString(KEY_DEFAULT_LANGUAGE, "").getDefault()
         set(language) = pref.edit().putString(KEY_DEFAULT_LANGUAGE, language).apply()
+
+    override var userInfo: OnlineUser
+        get() = Gson().fromJson(
+            pref.getString(KEY_USER_INFO, "{}").getDefault(), OnlineUser::class.java
+        )
+        set(data) = pref.edit().putString(KEY_USER_INFO, Gson().toJson(data)).apply()
 
     /**
      * Clear data

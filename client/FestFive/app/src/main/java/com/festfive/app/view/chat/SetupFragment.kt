@@ -14,6 +14,7 @@ import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initLinear
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
+import com.festfive.app.view.call.GroupCallActivity
 import com.festfive.app.view.call.VideoCallActivity
 import com.festfive.app.viewmodel.chat.SetupViewModel
 import com.google.gson.Gson
@@ -36,7 +37,7 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         }
     }
     override fun getLayoutRes(): Int  = R.layout.fragment_setup
-    private var friendID = ""
+    private var myGroupId = ""
 
     override fun initView() {
         super.initView()
@@ -49,10 +50,10 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
                 initLinear(RecyclerView.VERTICAL)
             }
 
-
             txtUserId.addTextChangedListener { text ->
                 dataBinding.userName = text.toString()
             }
+
         }
 
     }
@@ -62,6 +63,10 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
         mViewModel.apply {
             getUsers().observe(viewLifecycleOwner, Observer {
                 userListAdapter.updateData(it)
+                if(!it.isNullOrEmpty()){
+                    dataBinding.enableGroup = true
+                    dataBinding.btnSetUp.text = getText(R.string.btn_update)
+                }
             })
 
             videoCall.observe(viewLifecycleOwner, Observer {
@@ -69,23 +74,22 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
                 it?.let {
                     gotoVideoCall(it)
                 }
-
             })
-        }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        Timber.e("MyApp.onlineUser.id:  ${MyApp.onlineUser.id}")
-        dataBinding.setupDone = !MyApp.onlineUser.id.isNullOrEmpty()
+            if(!mViewModel.onlineUser.name.getDefault().isNullOrEmpty()){
+                dataBinding.txtUserId.setText(mViewModel.onlineUser.name.getDefault())
+                dataBinding.userName = mViewModel.onlineUser.name.getDefault()
+                setupChat()
+            }
+        }
     }
 
     fun setupChat() {
         val room = dataBinding.txtRoomId.text.toString()
+        myGroupId = room
         val user = dataBinding.txtUserId.text.toString()
 
         if(room.isNotEmpty() && user.isNotEmpty()){
-            dataBinding.setupDone = true
             mViewModel.setupChat(dataBinding.txtRoomId.text.toString(), dataBinding.txtUserId.text.toString())
         }
     }
@@ -114,20 +118,10 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
             Gson().toJson(videoCall)
         )
         requireContext().startActivity(intent)
-        /*navController.navigate(R.id.action_setupFragment_to_videoCallFragment,
-            Bundle().apply {
-                putString(
-                    Constants.KEY_PUT_OBJECT,
-                    Gson().toJson(videoCall)
-            )
-        })*/
 }
-    fun gotoVideoCall() {
-        navController.navigate(R.id.action_setupFragment_to_groupVideoCallFragment,
-        Bundle().apply {
-            putString(
-                Constants.KEY_PUT_OBJECT,
-                friendID)
-        })
+    fun gotoGroupVideoCall() {
+        val intent = Intent(requireContext(), GroupCallActivity::class.java)
+        intent.putExtra(Constants.KEY_PUT_OBJECT,myGroupId)
+        requireContext().startActivity(intent)
     }
 }

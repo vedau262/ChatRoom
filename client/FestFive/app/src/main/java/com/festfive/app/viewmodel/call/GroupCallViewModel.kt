@@ -1,4 +1,4 @@
-package com.festfive.app.viewmodel.chat
+package com.festfive.app.viewmodel.call
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

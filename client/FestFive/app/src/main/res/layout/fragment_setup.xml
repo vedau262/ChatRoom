@@ -20,7 +20,7 @@
             type="String" />
 
         <variable
-            name="setupDone"
+            name="enableGroup"
             type="Boolean" />
 
     </data>
@@ -96,7 +96,7 @@
             app:layout_constraintTop_toTopOf="@+id/txtUserId"
             app:layout_constraintRight_toRightOf="parent"
             android:onClick="@{() -> iView.gotoChat()}"
-            android:visibility="@{setupDone? View.VISIBLE : View.INVISIBLE}"/>
+            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_call"
@@ -108,8 +108,8 @@
             app:layout_constraintTop_toTopOf="@+id/txtUserId"
             app:layout_constraintRight_toLeftOf="@+id/btn_chat"
             android:layout_marginEnd="@dimen/dp_10"
-            android:onClick="@{() -> iView.gotoVideoCall()}"
-            android:visibility="@{setupDone? View.VISIBLE : View.INVISIBLE}"/>
+            android:onClick="@{() -> iView.gotoGroupVideoCall()}"
+            android:visibility="@{enableGroup? View.VISIBLE : View.INVISIBLE}"/>
 
         <TextView
             android:id="@+id/txtName"

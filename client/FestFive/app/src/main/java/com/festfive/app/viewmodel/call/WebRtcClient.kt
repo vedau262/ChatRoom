@@ -1,4 +1,4 @@
-package com.festfive.app.view.chat
+package com.festfive.app.viewmodel.call
 
 import android.app.Application
 import android.content.Context
@@ -10,8 +10,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection
-import org.webrtc.Logging
-import org.webrtc.PeerConnection.IceServer
 import timber.log.Timber
 import java.util.*
 

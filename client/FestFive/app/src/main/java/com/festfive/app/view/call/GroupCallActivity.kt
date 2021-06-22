@@ -1,51 +1,95 @@
-package com.festfive.app.view.chat
+package com.festfive.app.view.call
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.media.AudioManager
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
-import com.festfive.app.base.view.BaseFragment
+import com.festfive.app.base.view.BaseActivity
 import com.festfive.app.customize.listener.SignallingClientListener
-import com.festfive.app.databinding.FragmentVideoCallBinding
+import com.festfive.app.databinding.ActivityGroupCallBinding
 import com.festfive.app.extension.disable
 import com.festfive.app.extension.getDefault
-import com.festfive.app.extension.initLinear
-import com.festfive.app.model.OnlineUser
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
-import com.festfive.app.viewmodel.chat.VideoCallViewModel
+import com.festfive.app.viewmodel.call.VideoCallViewModel
+import com.festfive.app.viewmodel.call.WebRtcClient
 import com.google.gson.Gson
 import com.tbruyelle.rxpermissions2.RxPermissions
-import kotlinx.android.synthetic.main.fragment_setup.*
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
-class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewModel>(), SignallingClientListener{
-    private val TAG = "VideoCallFragment: "
+class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, VideoCallViewModel>(), SignallingClientListener {
+    private val TAG = "VideoCallActivity: "
 
+    private var task: Disposable? = null
+    private var taskEndCall: Disposable? = null
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
-    override fun getLayoutRes(): Int = R.layout.fragment_video_call
+    private var mAudio: AudioManager? = null
+    private var cameraOn: Boolean = true
+    private var speakerOn: Boolean = true
+    private var isMute: Boolean = false
 
     private var myId = ""
     private var friendId = ""
+    var endCallSubject = PublishSubject.create<Boolean>()
+
+    override fun getLayoutRes(): Int = R.layout.activity_group_call
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mAudio = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        if(videoCall.isReceive.getDefault()){
+            friendId = videoCall.from.getDefault()
+            myId = videoCall.to.getDefault()
+        } else {
+            friendId = videoCall.to.getDefault()
+            myId = videoCall.from.getDefault()
+        }
+        mViewModel.setCallback(this)
+
+        taskEndCall = (endCallSubject
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                when (it) {
+                    true -> {
+                        Toast.makeText(this, "End call!", Toast.LENGTH_SHORT).show()
+//                        this.finish()
+                    }
+
+                }
+            }, {}))
+    }
 
     override fun initView() {
         super.initView()
 //        showVideoView(false)
 
         dataBinding.apply {
-            iView = this@VideoCallFragment
+            iView = this@GroupCallActivity
 
             localRenderer.apply {
                 setEnableHardwareScaler(false)
@@ -59,7 +103,8 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                 setZOrderMediaOverlay(false)
             }
 
-            mViewModel.requestPermission(RxPermissions(requireActivity()),
+            mViewModel.requestPermission(
+                RxPermissions(this@GroupCallActivity),
                 arrayOf(
                     Manifest.permission.CAMERA,
                     Manifest.permission.RECORD_AUDIO
@@ -76,45 +121,79 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     override fun initViewModel() {
         super.initViewModel()
-        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
-        if(videoCall.isReceive.getDefault()){
-            friendId = videoCall.from.getDefault()
-            myId = videoCall.to.getDefault()
-        } else {
-            friendId = videoCall.to.getDefault()
-            myId = videoCall.from.getDefault()
-            dataBinding.acceptCall.visibility = View.GONE
+    }
+
+    fun setSpeaker() {
+        speakerOn = !speakerOn
+        Timber.e("$TAG setHead to $speakerOn")
+        mAudio?.apply {
+            isSpeakerphoneOn = speakerOn
+            mode = AudioManager.MODE_IN_COMMUNICATION
         }
 
-        mViewModel.setCallback(this)
+        /*if(speakerOn){
+            dataBinding.changeSpeaker.setImageResource(R.drawable.ic_speaker_on)
+        } else {
+            dataBinding.changeSpeaker.setImageResource(R.drawable.ic_speaker_off)
+        }*/
+    }
+
+    fun setCamera() {
+        cameraOn = !cameraOn
+        Timber.e("$TAG setCamera to $cameraOn")
+        webRtcClient?.SetCamera(cameraOn)
+       /* if(cameraOn){
+            dataBinding.setCameraOnOff.setImageResource(R.drawable.ic_camera_on)
+        } else {
+            dataBinding.setCameraOnOff.setImageResource(R.drawable.ic_camera_off)
+        }*/
+    }
+
+    fun setMicrophoneMute() {
+        isMute = !isMute
+        Timber.e("$TAG setMicrophoneMute to $isMute")
+        mAudio?.apply {
+            isMicrophoneMute = isMute
+            mode = AudioManager.MODE_IN_COMMUNICATION
+        }
+
+        /*if(isMute){
+            dataBinding.changeMic.setImageResource(R.drawable.ic_mic_off)
+        } else {
+            dataBinding.changeMic.setImageResource(R.drawable.ic_mic_on)
+        }*/
+    }
+
+    fun setFrontCamera(){
+        webRtcClient?.setFrontCamera()
     }
 
     @SuppressLint("LongLogTag")
     private fun startWebRTC() {
         Log.d("startWebRTC ", "startWebRTC")
         webRtcClient = WebRtcClient(
-            requireActivity().application,
+            this.application,
             eglBase.eglBaseContext,
             object : WebRtcClient.RtcListener {
                 @SuppressLint("LongLogTag")
                 override fun onOnlineIdsChanged(jsonArray: JSONArray) {
-                    activity?.runOnUiThread {
+                    runOnUiThread {
                         Log.d("startWebRTC onOnlineIdsChanged list", jsonArray.toString())
                     }
                 }
 
                 override fun onCallReady(callId: String) {
-                    activity?.runOnUiThread {
+                    runOnUiThread {
                         Log.d("startWebRTC onCallReady", callId)
-                        webRtcClient?.startLocalCamera(android.os.Build.MODEL, requireActivity())
+                        webRtcClient?.startLocalCamera(Build.MODEL, this@GroupCallActivity)
                     }
                 }
 
                 @SuppressLint("LongLogTag")
                 override fun onStatusChanged(newStatus: String) {
                     Log.d("startWebRTC onStatusChanged ", newStatus)
-                    activity?.runOnUiThread {
-                        if(newStatus == PeerConnection.IceConnectionState.DISCONNECTED.name){
+                    runOnUiThread {
+                        if (newStatus == PeerConnection.IceConnectionState.DISCONNECTED.name) {
 
                         }
 //                        Toast.makeText(this@MainActivity, newStatus, Toast.LENGTH_SHORT).show()
@@ -131,7 +210,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
                 override fun onAddRemoteStream(remoteStream: MediaStream, endPoint: Int) {
                     Log.d("startWebRTC onAddRemoteStream ", Gson().toJson(remoteStream))
 
-                    activity?.runOnUiThread {
+                    runOnUiThread {
                         remoteStream.videoTracks[0].addSink(dataBinding.remoteRenderer)
                     }
                 }
@@ -144,9 +223,20 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
     }
 
     private fun checkIsCalling() {
-        val videoCall = Gson().fromJson<VideoCall>(arguments?.getString(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
+        val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(!videoCall.isReceive.getDefault()){
             onStartCall()
+            task = Observable.timer(20000, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    Toast.makeText(this, "Not answer!", Toast.LENGTH_SHORT).show()
+                    mViewModel.endCall(friendId)
+                    webRtcClient?.onDestroy()
+                    Handler().postDelayed({
+                        finish()
+                    }, 2000)
+                }
         }
     }
 
@@ -161,7 +251,7 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     fun onStartAnswer() {
         Timber.e(TAG + "onStartAnswer to $friendId")
-        dataBinding.acceptCall.visibility = View.GONE
+//        dataBinding.acceptCall.visibility = View.GONE
         MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
         webRtcClient?.onCallReady(myId)
         webRtcClient?.callByClientId(friendId)
@@ -170,29 +260,26 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     fun endCall() {
         Timber.e(TAG + "endCall to $friendId")
+        task?.dispose()
         mViewModel.endCall(friendId)
-        webRtcClient?.onDestroy()
-        dataBinding.localRenderer.clearAnimation()
-        dataBinding.remoteRenderer.clearAnimation()
-        dataBinding.localRenderer.disable()
-        dataBinding.remoteRenderer.disable()
-        killActivity()
+       onEndCall()
     }
 
     override fun onAnswerAccept() {
         Timber.e(TAG + "onAnswerAccept from $friendId")
+        task?.dispose()
         showVideoView(true)
     }
 
     override fun onEndCall() {
-        endCall()
-        Timber.e(TAG + "onEndCall from $friendId")
+        Timber.e(TAG + "onEndCall")
         webRtcClient?.onDestroy()
         dataBinding.localRenderer.clearAnimation()
         dataBinding.remoteRenderer.clearAnimation()
         dataBinding.localRenderer.disable()
         dataBinding.remoteRenderer.disable()
         killActivity()
+        endCallSubject.onNext(true)
     }
 
     override fun onProcessStreamSocket(data: StreamSocket) {
@@ -200,10 +287,11 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
             webRtcClient?.processStreamSocket(it)
         }
     }
-
-    fun killActivity(){
-//        navController.popBackStack()
-        onHandleBackPressed()
+    private fun killActivity() {
+        runOnUiThread {
+            Timber.e(TAG + "killActivity ")
+            finish()
+        }
     }
 
     private fun showVideoView(isShow: Boolean) {
@@ -229,6 +317,8 @@ class VideoCallFragment : BaseFragment<FragmentVideoCallBinding, VideoCallViewMo
 
     override fun onStop() {
         super.onStop()
+        task?.dispose()
+        taskEndCall?.dispose()
         mViewModel.endCall(friendId)
         webRtcClient?.onDestroy()
     }
