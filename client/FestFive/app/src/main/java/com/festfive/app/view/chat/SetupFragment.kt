@@ -99,11 +99,9 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
     }
 
     private fun gotoChat(roomID : String) {
-        MyApp.mSocket.emitData(Constants.KEY_JOIN_CHAT_ROOM, roomID)
-        val message = JSONObject()
-        message.put("room", roomID)
-        message.put("name", MyApp.onlineUser.name)
-        MyApp.mSocket.emitData(Constants.KEY_UPDATE_USER_INFO, message)
+        mViewModel.joinRoomChat(roomID)
+
+        mViewModel.updateInfo(roomID, MyApp.onlineUser.name.getDefault())
         MyApp.updateUser( MyApp.onlineUser.apply {
             room = roomID
         })
@@ -122,7 +120,12 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
 
     fun gotoGroupVideoCall() {
         val intent = Intent(requireContext(), GroupCallActivity::class.java)
-        intent.putExtra(Constants.KEY_PUT_OBJECT, myRoomId)
+        val roomId = "group" + myRoomId
+        MyApp.updateUser(MyApp.onlineUser.apply {
+            room = roomId
+        })
+        mViewModel.updateInfo(roomId, MyApp.onlineUser.name.getDefault())
+        intent.putExtra(Constants.KEY_PUT_OBJECT, roomId)
         requireContext().startActivity(intent)
     }
 }

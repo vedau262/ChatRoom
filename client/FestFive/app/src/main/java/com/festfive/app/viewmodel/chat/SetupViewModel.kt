@@ -62,6 +62,16 @@ class SetupViewModel @Inject constructor (
         MyApp.updateUser(OnlineUser(room = roomId, name = name, id = MyApp.onlineUser.id, isMe =  MyApp.onlineUser.isMe))
 
     }
+    fun updateInfo(roomID : String, name : String){
+        val message = JSONObject()
+        message.put("room", roomID)
+        message.put("name", name)
+        socketManager.emitData(Constants.KEY_UPDATE_USER_INFO, message)
+    }
+
+    fun joinRoomChat(roomId: String){
+        socketManager.emitData(Constants.KEY_JOIN_CHAT_ROOM, roomId)
+    }
 
     override fun onUserJoinChanged(data: MutableList<OnlineUser>) {
         super.onUserJoinChanged(data)

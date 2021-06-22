@@ -36,6 +36,14 @@ class VideoCallViewModel @Inject constructor (
         })
     }
 
+    fun onStartCall(message : JSONObject) {
+        socketManager.emitData(Constants.KEY_START_VIDEO_CALL, message)
+    }
+
+    fun onStartAnswer(friendId : String) {
+        socketManager.emitData(Constants.KEY_START_ANSWER, friendId)
+    }
+
     fun endCall(friendId: String) {
         socketManager.emitData(Constants.KEY_END_CALL, friendId)
     }

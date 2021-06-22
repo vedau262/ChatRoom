@@ -7,7 +7,7 @@ import com.festfive.app.databinding.ItemUserBinding
 import com.festfive.app.model.OnClickUser
 import com.festfive.app.model.OnlineUser
 
-class UserCallGroupAdapter (private val click: (OnClickUser) -> Unit) :
+class UserCallGroupAdapter (private val onlineUser : (OnlineUser) -> Unit) :
     BaseBindingAdapter<ItemCallBinding, OnlineUser>(){
 
     override fun getLayoutId(viewType: Int) = R.layout.item_call
@@ -16,6 +16,7 @@ class UserCallGroupAdapter (private val click: (OnClickUser) -> Unit) :
         val data = list[position]
         binding.apply {
             user = data
+            onlineUser.invoke(data)
         }
     }
 }

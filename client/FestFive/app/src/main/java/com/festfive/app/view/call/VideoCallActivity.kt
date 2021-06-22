@@ -246,14 +246,14 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         val message = JSONObject()
         message.put("to", friendId)
         message.put("from", myId)
-        MyApp.mSocket.emitData(Constants.KEY_START_VIDEO_CALL, message)
+        mViewModel.onStartCall(message)
         webRtcClient?.onCallReady(myId)
     }
 
     fun onStartAnswer() {
         Timber.e(TAG + "onStartAnswer to $friendId")
         dataBinding.acceptCall.visibility = View.GONE
-        MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
+        mViewModel.onStartAnswer(friendId)
         webRtcClient?.onCallReady(myId)
         webRtcClient?.callByClientId(friendId)
         showVideoView(true)

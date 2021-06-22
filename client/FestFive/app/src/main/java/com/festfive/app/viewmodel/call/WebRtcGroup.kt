@@ -15,6 +15,7 @@ import java.util.*
 
 
 class WebRtcGroup(
+        private val roomID: String,
        private val app: Application,
        private val eglContext: EglBase.Context,
        private val webrtcListener: RtcListener
@@ -177,10 +178,11 @@ class WebRtcGroup(
     private fun sendMessage(to: String, type: String, payload: JSONObject) {
         Timber.e("sendMessage to " + to)
         val message = JSONObject()
+        message.put("roomID", roomID)
         message.put("to", to)
         message.put("type", type)
         message.put("payload", payload)
-        MyApp.mSocket.emitData(Constants.KEY_STREAM_VIDEO_CALL, message)
+        MyApp.mSocket.emitData(Constants.KEY_STREAM_GROUP_CALL, message)
     }
 
     fun processStreamSocket(data: StreamSocket){

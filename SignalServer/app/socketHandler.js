@@ -91,6 +91,28 @@ module.exports = function(io, streams) {
 	    console.log("-- startGroupCall" , roomId);
       client.join(roomId);
 	  io.to(roomId).emit("ids", streams.getStreams());
+	  
+	  const clients = io.sockets.adapter.rooms[roomId].sockets; 
+		console.log("-- clients: " , clients)	  
+		for (const clientId in clients ) {
+			console.log("-- clientId: " , clientId);
+		}
+    });
+	
+	 client.on("group_video_call", function(details) {
+      var otherClient = io.sockets.connected[details.to];
+	    // console.log("-- " + client.id + " group_video_call --" + details);	
+      if (!otherClient) {
+        return;
+      }
+      delete details.to;
+      details.from = client.id;      
+	  io.to(details.roomID).emit("group_video_call", details);
+    });
+	
+	client.on("onEndGroupCall", function(roomId) {
+	  console.log("-- onEndGroupCall roomId " + roomId + " " + client.id);	
+      client.leave(roomId);
     });
 	
     client.on('test', function(data){

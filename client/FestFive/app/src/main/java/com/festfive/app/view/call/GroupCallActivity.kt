@@ -48,8 +48,9 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
 
     private val mAdapter : UserCallGroupAdapter by lazy {
         UserCallGroupAdapter {
-            if(it.isCall){
-                webRtcClient?.callByClientId(it.user.id.getDefault())
+            Timber.e("$TAG UserCallGroupAdapter ${it.toString()}")
+            if(!it.isMe){
+                webRtcClient?.callByClientId(it.id.getDefault())
             }
         }
     }
@@ -73,9 +74,9 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
         super.onCreate(savedInstanceState)
 
         myRoomId = intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString()
+        mViewModel.myRoom = myRoomId
         myId = MyApp.onlineUser.id.getDefault()
         mAudio = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        mViewModel.setCallback(this)
 
         taskEndCall = (endCallSubject
             .subscribeOn(Schedulers.io())
@@ -133,6 +134,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
 
     override fun initViewModel() {
         super.initViewModel()
+        mViewModel.setCallback(this)
         mViewModel.apply {
             userList.observe(this@GroupCallActivity, androidx.lifecycle.Observer {
                 mAdapter.updateData(it)
@@ -190,6 +192,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
     private fun startWebRTC() {
         Log.d("startWebRTC ", "startWebRTC")
         webRtcClient = WebRtcGroup(
+            myRoomId,
             this.application,
             eglBase.eglBaseContext,
             object : WebRtcGroup.RtcListener {
@@ -249,17 +252,8 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
         val message = JSONObject()
         message.put("to", myRoomId)
         message.put("from", myId)
-        MyApp.mSocket.emitData(Constants.KEY_START_GROUP_CALL, myRoomId)
+        mViewModel.onStartCall(myRoomId)
         webRtcClient?.onCallReady(myId)
-    }
-
-    fun onStartAnswer() {
-        Timber.e(TAG + "onStartAnswer to $myRoomId")
-//        dataBinding.acceptCall.visibility = View.GONE
-        MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, myRoomId)
-        webRtcClient?.onCallReady(myId)
-        webRtcClient?.callByClientId(myRoomId)
-        showVideoView(true)
     }
 
     fun endCall() {
