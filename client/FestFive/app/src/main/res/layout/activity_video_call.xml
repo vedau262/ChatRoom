@@ -61,7 +61,7 @@
             onSingleClick="@{() -> iView.endCall()}"/>
 
         <ImageView
-            android:id="@+id/changeCam"
+            android:id="@+id/setCameraOnOff"
             android:layout_width="@dimen/dp_50"
             android:layout_height="@dimen/dp_50"
             app:layout_constraintEnd_toEndOf="parent"
@@ -69,10 +69,23 @@
             android:padding="@dimen/dp_5"
             android:layout_margin="@dimen/dp_5"
             android:background="@drawable/bg_circle_grey"
-            app:srcCompat="@drawable/ic_switch_cam"/>
+            app:srcCompat="@drawable/ic_camera_on"
+            onSingleClick="@{() -> iView.setCamera()}"/>
 
         <ImageView
-            android:id="@+id/changeMic"
+            android:id="@+id/changeCam"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/setCameraOnOff"
+            android:padding="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_30"
+            android:background="@drawable/bg_circle_grey"
+            app:srcCompat="@drawable/ic_switch_cam"
+            onSingleClick="@{() -> iView.setFrontCamera()}"/>
+
+        <ImageView
+            android:id="@+id/changeSpeaker"
             android:layout_width="@dimen/dp_50"
             android:layout_height="@dimen/dp_50"
             android:padding="@dimen/dp_5"
@@ -80,8 +93,20 @@
             app:layout_constraintTop_toBottomOf="@+id/changeCam"
             app:layout_constraintStart_toStartOf="@+id/changeCam"
             android:background="@drawable/bg_circle_grey"
-            app:srcCompat="@drawable/ic_speaker"
-            onSingleClick="@{() -> iView.onStartAnswer()}"/>
+            app:srcCompat="@drawable/ic_speaker_on"
+            onSingleClick="@{() -> iView.setSpeaker()}"/>
+
+        <ImageView
+            android:id="@+id/changeMic"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:padding="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_30"
+            app:layout_constraintTop_toBottomOf="@+id/changeSpeaker"
+            app:layout_constraintStart_toStartOf="@+id/changeCam"
+            android:background="@drawable/bg_circle_grey"
+            app:srcCompat="@drawable/ic_mic_on"
+            onSingleClick="@{() -> iView.setMicrophoneMute()}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

@@ -13,15 +13,15 @@ module.exports = function(io, streams) {
     console.log("-- " + client.id + " joined --");
     client.emit("id", client.id);
 
-    client.on("message", function(details) {
+    client.on("video_call", function(details) {
       var otherClient = io.sockets.connected[details.to];
-	    // console.log("-- " + client.id + " message --" + details);	
+	    // console.log("-- " + client.id + " video_call --" + details);	
       if (!otherClient) {
         return;
       }
       delete details.to;
       details.from = client.id;
-      otherClient.emit("message", details);
+      otherClient.emit("video_call", details);
     });
 
     client.on("readyToStream", function(options) {

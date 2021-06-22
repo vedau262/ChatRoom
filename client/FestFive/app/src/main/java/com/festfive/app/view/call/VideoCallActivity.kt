@@ -2,13 +2,14 @@ package com.festfive.app.view.call
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.content.Context
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.Observer
+import android.widget.Toast
 import com.festfive.app.R
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.view.BaseActivity
@@ -19,7 +20,6 @@ import com.festfive.app.extension.getDefault
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
-import com.festfive.app.utils.SharePreferencesUtils.Companion.context
 import com.festfive.app.view.chat.WebRtcClient
 import com.festfive.app.viewmodel.chat.VideoCallViewModel
 import com.google.gson.Gson
@@ -28,6 +28,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.EglBase
@@ -41,16 +42,24 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
     private val TAG = "VideoCallActivity: "
 
     private var task: Disposable? = null
+    private var taskEndCall: Disposable? = null
     private var webRtcClient: WebRtcClient? = null
     private val eglBase by lazy { EglBase.create() }
+    private var mAudio: AudioManager? = null
+    private var cameraOn: Boolean = true
+    private var speakerOn: Boolean = true
+    private var isMute: Boolean = false
 
     private var myId = ""
     private var friendId = ""
+    var endCallSubject = PublishSubject.create<Boolean>()
 
     override fun getLayoutRes(): Int = R.layout.activity_video_call
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mAudio = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(videoCall.isReceive.getDefault()){
             friendId = videoCall.from.getDefault()
@@ -61,6 +70,19 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
             dataBinding.acceptCall.visibility = View.GONE
         }
         mViewModel.setCallback(this)
+
+        taskEndCall = (endCallSubject
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                when (it) {
+                    true -> {
+                        Toast.makeText(this, "End call!", Toast.LENGTH_SHORT).show()
+//                        this.finish()
+                    }
+
+                }
+            }, {}))
     }
 
     override fun initView() {
@@ -100,6 +122,51 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     override fun initViewModel() {
         super.initViewModel()
+    }
+
+    fun setSpeaker() {
+        speakerOn = !speakerOn
+        Timber.e("$TAG setHead to $speakerOn")
+        mAudio?.apply {
+            isSpeakerphoneOn = speakerOn
+            mode = AudioManager.MODE_IN_COMMUNICATION
+        }
+
+        if(speakerOn){
+            dataBinding.changeSpeaker.setImageResource(R.drawable.ic_speaker_on)
+        } else {
+            dataBinding.changeSpeaker.setImageResource(R.drawable.ic_speaker_off)
+        }
+    }
+
+    fun setCamera() {
+        cameraOn = !cameraOn
+        Timber.e("$TAG setCamera to $cameraOn")
+        webRtcClient?.SetCamera(cameraOn)
+        if(cameraOn){
+            dataBinding.setCameraOnOff.setImageResource(R.drawable.ic_camera_on)
+        } else {
+            dataBinding.setCameraOnOff.setImageResource(R.drawable.ic_camera_off)
+        }
+    }
+
+    fun setMicrophoneMute() {
+        isMute = !isMute
+        Timber.e("$TAG setMicrophoneMute to $isMute")
+        mAudio?.apply {
+            isMicrophoneMute = isMute
+            mode = AudioManager.MODE_IN_COMMUNICATION
+        }
+
+        if(isMute){
+            dataBinding.changeMic.setImageResource(R.drawable.ic_mic_off)
+        } else {
+            dataBinding.changeMic.setImageResource(R.drawable.ic_mic_on)
+        }
+    }
+
+    fun setFrontCamera(){
+        webRtcClient?.setFrontCamera()
     }
 
     @SuppressLint("LongLogTag")
@@ -160,11 +227,11 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         val videoCall = Gson().fromJson<VideoCall>(intent.getStringExtra(Constants.KEY_PUT_OBJECT).toString(), VideoCall::class.java)
         if(!videoCall.isReceive.getDefault()){
             onStartCall()
-            task = Observable.timer(40000, TimeUnit.MILLISECONDS)
+            task = Observable.timer(20000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-//                    Toast.makeText(this, "Not answer!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Not answer!", Toast.LENGTH_SHORT).show()
                     mViewModel.endCall(friendId)
                     webRtcClient?.onDestroy()
                     Handler().postDelayed({
@@ -185,6 +252,7 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     fun onStartAnswer() {
         Timber.e(TAG + "onStartAnswer to $friendId")
+        task?.dispose()
         dataBinding.acceptCall.visibility = View.GONE
         MyApp.mSocket.emitData(Constants.KEY_START_ANSWER, friendId)
         webRtcClient?.onCallReady(myId)
@@ -194,15 +262,15 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
 
     fun endCall() {
         Timber.e(TAG + "endCall to $friendId")
-        mViewModel.endCall(friendId)
         task?.dispose()
+        mViewModel.endCall(friendId)
        onEndCall()
     }
 
     override fun onAnswerAccept() {
         Timber.e(TAG + "onAnswerAccept from $friendId")
-        showVideoView(true)
         task?.dispose()
+        showVideoView(true)
     }
 
     override fun onEndCall() {
@@ -213,6 +281,7 @@ class VideoCallActivity :BaseActivity<ActivityVideoCallBinding, VideoCallViewMod
         dataBinding.localRenderer.disable()
         dataBinding.remoteRenderer.disable()
         killActivity()
+        endCallSubject.onNext(true)
     }
 
     override fun onProcessStreamSocket(data: StreamSocket) {

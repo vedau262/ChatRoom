@@ -80,7 +80,7 @@
             app:layout_constraintTop_toBottomOf="@+id/changeCam"
             app:layout_constraintStart_toStartOf="@+id/changeCam"
             android:background="@drawable/bg_circle_grey"
-            app:srcCompat="@drawable/ic_speaker"
+            app:srcCompat="@drawable/ic_speaker_on"
             onSingleClick="@{() -> iView.onStartAnswer()}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -167,9 +167,9 @@ class MyApp : DaggerApplication(), Application.ActivityLifecycleCallbacks {
                     RxEvent.send(SystemEvent.SocketData(data = mes))
                 })
 
-                mSocket.onChannel("message", Emitter.Listener {
+                mSocket.onChannel(Constants.KEY_STREAM_VIDEO_CALL, Emitter.Listener {
                     val data = it[0] as JSONObject
-                    Timber.e("onChannel message:" + data)
+                    Timber.e("onChannel video_call:" + data)
                     val mes = Gson().fromJson<StreamSocket>(data.toString(), StreamSocket::class.java).apply {
                         payload = data.getJSONObject("payload")
                     }

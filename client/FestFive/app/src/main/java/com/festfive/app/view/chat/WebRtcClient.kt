@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.festfive.app.application.MyApp
 import com.festfive.app.model.StreamSocket
+import com.festfive.app.utils.Constants
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -58,7 +59,7 @@ class WebRtcClient(
         pcConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
         pcConstraints.optional.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
 
-        MyApp.mSocket.emitData("get_id", "get_id")
+//        MyApp.mSocket.emitData("get_id", "get_id")
     }
     fun onCallReady(id: String) {
         webrtcListener.onCallReady(id)
@@ -72,8 +73,27 @@ class WebRtcClient(
             } ?: throw IllegalStateException()
         }
 
+    fun setFrontCamera() {
+        try {
+            mVideoCapturer.switchCamera(null)
+        }catch (e: Exception){
+
+        }
+    }
+
+    fun SetCamera(isOn: Boolean) {
+        try {
+            localMS?.videoTracks?.get(0)?.setEnabled(isOn)
+        }catch (e: Exception){
+
+        }
+    }
+
     fun startLocalCamera(name: String, context: Context) {
         //init local media stream
+        val audioTrack = factory.createAudioSource(MediaConstraints())
+        val localAudioTrack = factory.createAudioTrack(AUDIO_TRACK_ID, audioTrack)
+        localAudioTrack.setEnabled(true)
         val localVideoSource = factory.createVideoSource(false)
         val surfaceTextureHelper =
             SurfaceTextureHelper.create(
@@ -85,8 +105,9 @@ class WebRtcClient(
             localVideoSource.capturerObserver
         )
         mVideoCapturer.startCapture(320, 240, 60)
-        localMS = factory.createLocalMediaStream("LOCALMEDIASTREAM")
-        localMS?.addTrack(factory.createVideoTrack("LOCALMEDIASTREAM", localVideoSource))
+        localMS = factory.createLocalMediaStream(LOCAL_STREAM_ID)
+        localMS?.addTrack(factory.createVideoTrack(LOCAL_TRACK_ID, localVideoSource))
+        localMS?.addTrack(localAudioTrack)
         webrtcListener.onLocalStream(localMS!!)
     }
 
@@ -161,19 +182,8 @@ class WebRtcClient(
         message.put("to", to)
         message.put("type", type)
         message.put("payload", payload)
-        MyApp.mSocket.emitData("message", message)
+        MyApp.mSocket.emitData(Constants.KEY_STREAM_VIDEO_CALL, message)
     }
-
-
-    private fun requestCall(to: String, type: String, payload: JSONObject) {
-        Timber.e("sendMessage to " + to)
-        val message = JSONObject()
-        message.put("to", to)
-        message.put("type", type)
-        message.put("payload", payload)
-        MyApp.mSocket.emitData("message", message)
-    }
-
 
     fun processStreamSocket(data: StreamSocket){
         Timber.e("processStreamSocket: "+ data)
@@ -357,5 +367,8 @@ class WebRtcClient(
     companion object {
         const val TAG = "WebRtcClient "
         const val MAX_PEER = 2
+        private const val LOCAL_TRACK_ID = "local_track"
+        private const val AUDIO_TRACK_ID = "audio_track"
+        private const val LOCAL_STREAM_ID = "local_track"
     }
 }
