@@ -366,7 +366,7 @@ class WebRtcGroup(
 
     companion object {
         const val TAG = "WebRtcClient "
-        const val MAX_PEER = 2
+        const val MAX_PEER = 9
         private const val LOCAL_TRACK_ID = "local_track"
         private const val AUDIO_TRACK_ID = "audio_track"
         private const val LOCAL_STREAM_ID = "local_track"

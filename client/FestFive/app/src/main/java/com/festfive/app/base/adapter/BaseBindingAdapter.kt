@@ -51,7 +51,22 @@ abstract class BaseBindingAdapter<V : ViewDataBinding, T>(val onClicked: ((T?) -
 
     open fun addData(data: T) {
         this.list.add(data)
-        notifyDataSetChanged()
+        notifyItemChanged(list.size-1)
+    }
+
+    open fun removeData(data: T) {
+        val index = list.indexOf(data)
+        if(index!=1){
+            this.list.remove(data)
+            notifyItemRemoved(index)
+        }
+    }
+
+    open fun removeData(pos: Int) {
+        if(pos>= 0 && pos < list.size){
+            this.list.removeAt(pos)
+            notifyDataSetChanged()
+        }
     }
 
     open fun addListData(list: MutableList<T>) {

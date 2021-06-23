@@ -9,6 +9,7 @@ import com.festfive.app.model.OnClickUser
 import com.festfive.app.model.OnlineUser
 import org.webrtc.EglBase
 import org.webrtc.MediaStream
+import timber.log.Timber
 
 class UserCallGroupAdapter (private val onlineUser : (OnlineUser) -> Unit) :
     BaseBindingAdapter<ItemCallBinding, DataStream>(){
@@ -22,11 +23,13 @@ class UserCallGroupAdapter (private val onlineUser : (OnlineUser) -> Unit) :
             user = data.onlineUser
             mediaStrem = data.mediaStream
             onlineUser.invoke(data.onlineUser)
+            /*if(localRenderer==null) {
+                localRenderer.apply {
+                    setEnableHardwareScaler(false)
+                    init(eglBase.eglBaseContext, null)
+                }
+            }*/
 
-            localRenderer.apply {
-                setEnableHardwareScaler(false)
-                init(eglBase.eglBaseContext, null)
-            }
 
 //            if(mediaStrem!=null){
             mediaStrem?.videoTracks?.get(0)?.addSink(localRenderer)
@@ -44,5 +47,16 @@ class UserCallGroupAdapter (private val onlineUser : (OnlineUser) -> Unit) :
             }
         }
         notifyDataSetChanged()
+    }
+
+    fun findMe(userID : String) : Int{
+        list.find{ it ->
+            it.onlineUser.id == userID
+        } .apply {
+            Timber.e("findMe $userID is at pos : ${list.indexOf(this)}")
+            return list.indexOf(this)
+        }
+        Timber.e("findMe $userID is at pos : -1")
+        return -1
     }
 }
