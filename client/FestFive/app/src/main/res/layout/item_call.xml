@@ -9,8 +9,8 @@
             type="com.festfive.app.model.OnlineUser" />
 
         <variable
-            name="listener"
-            type="com.festfive.app.customize.listener.IClickUser" />
+            name="mediaStrem"
+            type="org.webrtc.MediaStream" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

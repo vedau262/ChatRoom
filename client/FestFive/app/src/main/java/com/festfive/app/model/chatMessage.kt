@@ -5,6 +5,7 @@ import com.festfive.app.application.MyApp
 import com.festfive.app.extension.getDefault
 import com.google.gson.JsonObject
 import org.json.JSONObject
+import org.webrtc.MediaStream
 
 data class MessageSocket(
     val list : MutableList<ChatMessage>
@@ -53,6 +54,12 @@ data class VideoCall(
     val to : String?=null,
     val from : String?=null,
     val isReceive : Boolean?=false
+) {
+}
+
+data class DataStream(
+    var mediaStream: MediaStream? = null,
+    val onlineUser: OnlineUser
 ) {
 }
 

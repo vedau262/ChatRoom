@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.festfive.app.application.MyApp
 import com.festfive.app.base.viewmodel.BaseViewModel
 import com.festfive.app.customize.listener.SignallingClientListener
+import com.festfive.app.model.DataStream
 import com.festfive.app.model.OnlineUser
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.push.SocketManager
@@ -25,8 +26,8 @@ class GroupCallViewModel @Inject constructor (
 
     var callbacks: SignallingClientListener? = null
 
-    private val _mUserList: MutableLiveData<MutableList<OnlineUser>> = MutableLiveData()
-    val userList: LiveData<MutableList<OnlineUser>> = _mUserList
+    private val _mUserList: MutableLiveData<MutableList<DataStream>> = MutableLiveData()
+    val userList: LiveData<MutableList<DataStream>> = _mUserList
 
     init {
         this.onBindSocketReceivedListener()
@@ -71,12 +72,13 @@ class GroupCallViewModel @Inject constructor (
     override fun onUserJoinChanged(data: MutableList<OnlineUser>) {
         super.onUserJoinChanged(data)
         Timber.e("onUserJoinChanged ------> $data")
-        val list = data
-        for(i in list.size-1 downTo 0){
-            if(list[i].room!=myRoom){
-                list.removeAt(i)
+        val list : MutableList<DataStream> = mutableListOf()
+        data.forEach {user ->
+            if(user.room!=myRoom) {
+                list.add(DataStream(onlineUser = user))
             }
         }
+
         _mUserList.postValue(list)
     }
 }

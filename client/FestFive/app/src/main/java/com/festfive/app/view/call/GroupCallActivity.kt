@@ -20,6 +20,7 @@ import com.festfive.app.extension.disable
 import com.festfive.app.extension.getDefault
 import com.festfive.app.extension.initGrid
 import com.festfive.app.extension.initLinear
+import com.festfive.app.model.DataStream
 import com.festfive.app.model.StreamSocket
 import com.festfive.app.model.VideoCall
 import com.festfive.app.utils.Constants
@@ -232,6 +233,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
                     Log.d("startWebRTC onAddRemoteStream ", Gson().toJson(remoteStream))
 
                     runOnUiThread {
+                        mAdapter.addStream(remoteStream)
                         remoteStream.videoTracks[0].addSink(dataBinding.remoteRenderer)
                     }
                 }
