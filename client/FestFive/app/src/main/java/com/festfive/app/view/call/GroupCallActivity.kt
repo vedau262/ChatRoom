@@ -6,6 +6,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.*
@@ -41,25 +42,6 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
     GroupClientListener {
     private val TAG = "GroupCallActivity: "
 
-    private val mAdapter : UserCallGroupAdapter by lazy {
-        UserCallGroupAdapter {
-            Timber.e("$TAG UserCallGroupAdapter ${it.toString()}")
-            if(!it.isMe){
-                callFriend(it)
-            }
-        }
-    }
-
-    fun callFriend(user: OnlineUser) {
-        if(!listFriendCalled.contains(user) && mAdapter.findMe(user.id.getDefault()) < mAdapter.findMe(myId)){
-            Timber.e("callFriend ${user.toString()}")
-            webRtcClient?.callByClientId(user.id.getDefault())
-            listFriendCalled.add(user)
-        }
-    }
-
-    private var task: Disposable? = null
-    private var taskEndCall: Disposable? = null
     private var webRtcClient: WebRtcGroup? = null
     private val eglBase by lazy { EglBase.create() }
     private var mAudio: AudioManager? = null
@@ -69,9 +51,40 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
 
     private var myId = ""
     private var myRoomId = ""
-    var endCallSubject = PublishSubject.create<Boolean>()
     var listSurfaceView : MutableList<SurfaceViewRenderer> = mutableListOf()
     var listFriendCalled : MutableList<OnlineUser> = mutableListOf()
+
+    private val mAdapter : UserCallGroupAdapter by lazy {
+        UserCallGroupAdapter {
+            Timber.e("$TAG UserCallGroupAdapter ${it.toString()}")
+            if(!it.isMe){
+                callFriend(it)
+            }
+        }
+    }
+    var isCalling = false
+    fun callFriend(user: OnlineUser) {
+        if(!isCalling){
+            if(!listFriendCalled.contains(user) && mAdapter.findMe(user.id.getDefault()) < mAdapter.findMe(myId)){
+                Timber.e("callFriend ${user.toString()}")
+                isCalling = true
+                webRtcClient?.callByClientId(user.id.getDefault())
+                listFriendCalled.add(user)
+            }
+        } else {
+            Handler().postDelayed({
+                if(!listFriendCalled.contains(user) && mAdapter.findMe(user.id.getDefault()) < mAdapter.findMe(myId)){
+                    Timber.e("callFriend ${user.toString()}")
+                    isCalling = true
+                    webRtcClient?.callByClientId(user.id.getDefault())
+                    listFriendCalled.add(user)
+                }
+            }, 10000)
+        }
+
+    }
+
+
 
     override fun getLayoutRes(): Int = R.layout.activity_group_call
 
@@ -82,19 +95,6 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
         mViewModel.myRoom = myRoomId
         myId = MyApp.onlineUser.id.getDefault()
         mAudio = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        taskEndCall = (endCallSubject
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                when (it) {
-                    true -> {
-                        Toast.makeText(this, "End call!", Toast.LENGTH_SHORT).show()
-//                        this.finish()
-                    }
-
-                }
-            }, {}))
     }
 
     override fun initView() {
@@ -251,7 +251,6 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
 
     fun endCall() {
         Timber.e(TAG + "endCall to $myRoomId")
-        task?.dispose()
         mViewModel.endCall(myRoomId)
         releaseSurfaceView()
         killActivity()
@@ -303,7 +302,7 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
         dataBinding.info.addView(view)
         listSurfaceView.add(view)
         localStream.videoTracks[0].addSink(listSurfaceView.get(listSurfaceView.size-1))
-        dataBinding.info.columnCount = 3
+        dataBinding.info.columnCount = 2
         /*
         dataBinding.info.columnCount = if(listSurfaceView.size+1>=4) (listSurfaceView.size+1)/2  else 1
         dataBinding.info.rowCount = if(dataBinding.info.columnCount>=2) (listSurfaceView.size+1)/dataBinding.info.columnCount  else listSurfaceView.size/2+1
@@ -349,8 +348,6 @@ class GroupCallActivity :BaseActivity<ActivityGroupCallBinding, GroupCallViewMod
 
     override fun onStop() {
         Timber.e("$TAG onStop")
-        task?.dispose()
-        taskEndCall?.dispose()
         mViewModel.endCall(myRoomId)
         webRtcClient?.onDestroy()
         releaseSurfaceView()

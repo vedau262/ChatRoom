@@ -26,7 +26,7 @@ private val rootEglBase: EglBase = EglBase.create()
             mediaStrem = data.mediaStream
             onlineUser.invoke(data.onlineUser)
 
-            if(data.mediaStream==null){
+            /*if(data.mediaStream==null){
                 localRenderer.apply {
                     setMirror(true)
                     setEnableHardwareScaler(false)
@@ -34,7 +34,7 @@ private val rootEglBase: EglBase = EglBase.create()
 //                    init(eglBase.eglBaseContext, null)
                 }
                 mediaStrem?.videoTracks?.get(0)?.addSink(localRenderer)
-            }
+            }*/
         }
     }
 

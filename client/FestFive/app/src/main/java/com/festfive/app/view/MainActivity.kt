@@ -3,9 +3,6 @@ package com.festfive.app.view
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import com.facebook.stetho.DumperPluginsProvider
-import com.facebook.stetho.Stetho
-import com.facebook.stetho.dumpapp.DumperPlugin
 import com.festfive.app.R
 import com.festfive.app.base.view.BaseActivity
 import com.festfive.app.databinding.ActivityMainBinding
@@ -15,7 +12,7 @@ import com.festfive.app.model.test.User
 import io.realm.*
 import timber.log.Timber
 
-class MainActivity : BaseActivity<ActivityMainBinding, TestViewModel>(), View.OnClickListener {
+class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), View.OnClickListener {
     lateinit var realm : Realm
 
     override fun getLayoutRes(): Int = R.layout.activity_main

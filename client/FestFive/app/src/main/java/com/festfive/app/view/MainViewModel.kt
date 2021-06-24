@@ -19,7 +19,7 @@ import java.lang.Exception
 import javax.inject.Inject
 import kotlin.random.Random
 
-class TestViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val realm: Context,
     private val loginRepository: LoginRepository,
     private val userRepository: UserRepository,

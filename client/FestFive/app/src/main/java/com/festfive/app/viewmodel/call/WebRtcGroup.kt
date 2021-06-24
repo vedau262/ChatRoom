@@ -48,9 +48,20 @@ class WebRtcGroup(
 
         //Used when initializing the ICE server to create a PC
         iceServers.add(PeerConnection.IceServer.builder("stun:23.21.150.121").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:numb.viagenie.ca").createIceServer())
         iceServers.add(PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("stun:124.64.206.224:8800").createIceServer())
+
+//        iceServers.add(PeerConnection.IceServer.builder("stun2.l.google.com:19302").createIceServer())
+//        iceServers.add(PeerConnection.IceServer.builder("stun3.l.google.com:19302").createIceServer())
+//        iceServers.add(PeerConnection.IceServer.builder("stun4.l.google.com:19302").createIceServer())
+
         iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("webrtc@live.com").setPassword("muazkh").createIceServer())
         iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("vedau262@gmail.com").setPassword("205323109").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:numb.viagenie.ca").setUsername("langthamyeuem19999@gmail.com").setPassword("205323109").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:13.250.13.83:3478?transport=udp").setUsername("YzYNCouZM1mhqhmseWk6").setPassword("YzYNCouZM1mhqhmseWk6").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:192.158.29.39:3478?transport=udp").setUsername("28224511:1379330808").setPassword("JZEOEt2V3Qb0y27GRntt2u2PAYA=").createIceServer())
+        iceServers.add(PeerConnection.IceServer.builder("turn:192.158.29.39:3478?transport=tcp").setUsername("28224511:1379330808").setPassword("JZEOEt2V3Qb0y27GRntt2u2PAYA=").createIceServer())
 
 
         //Initialize the local MediaConstraints used when creating the PC, which is the configuration information of the streaming media
@@ -254,7 +265,7 @@ class WebRtcGroup(
 
         override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
             webrtcListener.onStatusChanged(iceConnectionState.name)
-            Timber.e( "onIceConnectionChange ${iceConnectionState.name}")
+            Timber.e( "onIceConnectionChange ${iceConnectionState.name}  $id")
             if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
                 removePeer(id)
             }
@@ -331,7 +342,7 @@ class WebRtcGroup(
     }
 
     private fun createAnswer(peerId: String, payload: JSONObject?) {
-        Timber.e(TAG + "CreateAnswerCommand payload "+ payload)
+        Timber.e(TAG + "CreateAnswerCommand payload for peerId $peerId :"+ payload)
         val peer = peers[peerId]
         val sdp = SessionDescription(
             SessionDescription.Type.fromCanonicalForm(payload?.getString("type")),
@@ -342,7 +353,7 @@ class WebRtcGroup(
     }
 
     private fun setRemoteSdp(peerId: String, payload: JSONObject?) {
-        Timber.e(TAG + "SetRemoteSDPCommand")
+        Timber.e(TAG + "SetRemoteSDPCommand peerId $peerId")
         val peer = peers[peerId]
         val sdp = SessionDescription(
             SessionDescription.Type.fromCanonicalForm(payload?.getString("type")),
@@ -352,7 +363,7 @@ class WebRtcGroup(
     }
 
     private fun addIceCandidate(peerId: String, payload: JSONObject?) {
-        Timber.e(TAG + "AddIceCandidateCommand "+ payload)
+        Timber.e(TAG + "AddIceCandidateCommand for peerId: $peerId "+ payload)
         val pc = peers[peerId]!!.pc
         if (pc!!.remoteDescription != null) {
             val candidate = IceCandidate(

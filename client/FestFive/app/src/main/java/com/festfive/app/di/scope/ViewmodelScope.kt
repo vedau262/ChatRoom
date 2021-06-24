@@ -1,8 +1,6 @@
 package com.festfive.app.di.scope
 
 import androidx.lifecycle.ViewModel
-import com.festfive.app.base.viewmodel.EmptyViewModel
-import com.festfive.app.view.TestViewModel
 import dagger.MapKey
 import kotlin.reflect.KClass
 
